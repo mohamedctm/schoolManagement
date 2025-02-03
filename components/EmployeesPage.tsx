@@ -5,19 +5,30 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
+// Define the Employee interface
+interface Employee {
+  id: number;
+  name: string;
+  email: string;
+  position: string;
+  username: string;
+  password: string;
+}
+
 export default function EmployeesPage() {
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [form, setForm] = useState({ 
-    id: "", 
-    name: "", 
-    email: "", 
-    position: "", 
-    username: "", 
-    password: "" 
+  // Use the Employee interface for state instead of any
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [form, setForm] = useState<Employee>({
+    id: 0,
+    name: "",
+    email: "",
+    position: "",
+    username: "",
+    password: ""
   });
   const [isEditing, setIsEditing] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<any | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
@@ -25,16 +36,13 @@ export default function EmployeesPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const response = await fetch('/api/auth', { credentials: 'include' });
-
+      const response = await fetch("/api/auth", { credentials: "include" });
       if (!response.ok) {
-        router.push('/login');
+        router.push("/login");
         return;
       }
-
       fetchEmployees();
     };
-
     checkAuth();
   }, [router]);
 
@@ -43,7 +51,15 @@ export default function EmployeesPage() {
       .from("employees")
       .select("id, name, email, position, username");
 
-    if (!error) setEmployees(data || []);
+    if (!error && data) {
+      // The password field is not returned by the query,
+      // so we add an empty string for each employee.
+      const employeesWithPassword = data.map((emp: any) => ({
+        ...emp,
+        password: ""
+      }));
+      setEmployees(employeesWithPassword);
+    }
   };
 
   const handleAddOrUpdateEmployee = async () => {
@@ -67,7 +83,7 @@ export default function EmployeesPage() {
           email: form.email,
           position: form.position,
           username: form.username,
-          password: form.password,
+          password: form.password
         }
       ]);
     }
@@ -75,7 +91,7 @@ export default function EmployeesPage() {
     fetchEmployees();
   };
 
-  const handleDeleteEmployee = async (id: string) => {
+  const handleDeleteEmployee = async (id: number) => {
     const confirmDelete = confirm("Are you sure you want to delete this employee?");
     if (!confirmDelete) return;
 
@@ -83,29 +99,33 @@ export default function EmployeesPage() {
     fetchEmployees();
   };
 
-  const handleEditEmployee = (employee: any) => {
+  const handleEditEmployee = (employee: Employee) => {
     setForm({ ...employee, password: "" });
     setIsEditing(true);
     setShowForm(true);
   };
 
-  const handleViewEmployee = (employee: any) => {
+  const handleViewEmployee = (employee: Employee) => {
     setSelectedEmployee(employee);
     setShowModal(true);
   };
 
   const resetForm = () => {
-    setForm({ id: "", name: "", email: "", position: "", username: "", password: "" });
+    setForm({
+      id: 0,
+      name: "",
+      email: "",
+      position: "",
+      username: "",
+      password: ""
+    });
     setIsEditing(false);
     setShowForm(false);
   };
 
   return (
-    
     <div className="p-6 max-w-lg mx-auto">
       <h1 className="text-2xl font-bold mb-4">Employees</h1>
-
-      
 
       <button
         onClick={() => setShowForm(!showForm)}
@@ -120,32 +140,42 @@ export default function EmployeesPage() {
           <input
             type="text"
             value={form.name}
-            onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, name: e.target.value }))
+            }
             className="w-full p-2 mb-2 border border-gray-300 rounded"
           />
           <label className="block mb-1">Email</label>
           <input
             type="email"
             value={form.email}
-            onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, email: e.target.value }))
+            }
             className="w-full p-2 mb-2 border border-gray-300 rounded"
           />
           <label className="block mb-1">Position</label>
           <select
             value={form.position}
-            onChange={(e) => setForm((prev) => ({ ...prev, position: e.target.value }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, position: e.target.value }))
+            }
             className="w-full p-2 mb-2 border border-gray-300 rounded"
           >
             <option value="">Select Position</option>
             {positions.map((pos) => (
-              <option key={pos} value={pos}>{pos}</option>
+              <option key={pos} value={pos}>
+                {pos}
+              </option>
             ))}
           </select>
           <label className="block mb-1">Username</label>
           <input
             type="text"
             value={form.username}
-            onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, username: e.target.value }))
+            }
             className="w-full p-2 mb-2 border border-gray-300 rounded"
           />
           {!isEditing && (
@@ -154,7 +184,9 @@ export default function EmployeesPage() {
               <input
                 type="password"
                 value={form.password}
-                onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, password: e.target.value }))
+                }
                 className="w-full p-2 mb-2 border border-gray-300 rounded"
               />
             </>
@@ -178,40 +210,66 @@ export default function EmployeesPage() {
         </div>
       )}
 
-      <ul className="bg-white shadow rounded-lg p-4" >
-      {employees.length === 0 ? (
-    <p className="text-gray-500">No employees found.</p>
-  ) : (
-    employees
-      .slice() // ✅ Create a new array to avoid mutating state
-      .sort((a, b) => a.name.localeCompare(b.name)) // ✅ Sort employees alphabetically (ASC)
-      .map((employee) => (
-        <li key={employee.id} className="flex justify-between items-center border-b p-2 last:border-none">
-          <div>
-            <p className="font-semibold">{employee.name} ({employee.position})</p>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => handleViewEmployee(employee)} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">View</button>
-            <button onClick={() => handleEditEmployee(employee)} className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Edit</button>
-            <button onClick={() => handleDeleteEmployee(employee.id)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete</button>
-          </div>
-        </li>
-      ))
-  )}
-</ul>
+      <ul className="bg-white shadow rounded-lg p-4">
+        {employees.length === 0 ? (
+          <p className="text-gray-500">No employees found.</p>
+        ) : (
+          employees
+            .slice() // Create a copy to avoid state mutation
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((employee) => (
+              <li
+                key={employee.id}
+                className="flex justify-between items-center border-b p-2 last:border-none"
+              >
+                <div>
+                  <p className="font-semibold">
+                    {employee.name} ({employee.position})
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleViewEmployee(employee)}
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => handleEditEmployee(employee)}
+                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEmployee(employee.id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))
+        )}
+      </ul>
 
       {showModal && selectedEmployee && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-bold mb-2">{selectedEmployee.name}</h2>
+            <h2 className="text-xl font-bold mb-2">
+              {selectedEmployee.name}
+            </h2>
             <p>Email: {selectedEmployee.email}</p>
             <p>Position: {selectedEmployee.position}</p>
             <p>Username: {selectedEmployee.username}</p>
-            <button onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 mt-4 rounded hover:bg-gray-600">Close</button>
+            <button
+              onClick={() => setShowModal(false)}
+              className="bg-gray-500 text-white px-4 py-2 mt-4 rounded hover:bg-gray-600"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
     </div>
-    
   );
 }
