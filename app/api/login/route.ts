@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import jwt from 'jsonwebtoken';
 import { serialize } from 'cookie';
-import bcrypt from 'bcrypt'; // Ensure bcrypt is installed
+// import bcrypt from 'bcrypt'; // Ensure bcrypt is installed
 
 export async function POST(req: Request) {
   try {

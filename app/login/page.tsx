@@ -30,7 +30,7 @@ export default function LoginPage() {
 
       // ✅ Redirect to Dashboard
       router.push('/dashboard');
-    } catch (err) {
+    } catch (err:error) {
       setError('Network error, please try again.');
     }
   };
