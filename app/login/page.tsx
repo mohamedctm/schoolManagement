@@ -1,37 +1,37 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-        credentials: 'include', // ✅ Ensures cookies are sent & received
+        credentials: "include", // Ensures cookies are sent & received
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Login failed');
+        setError(data.error || "Login failed");
         return;
       }
 
-      // ✅ Redirect to Dashboard
-      router.push('/dashboard');
-    } catch (err:error) {
-      setError('Network error, please try again.');
+      // Redirect to Dashboard
+      router.push("/dashboard");
+    } catch (_err) {
+      setError("Network error, please try again.");
     }
   };
 
@@ -57,7 +57,10 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 mt-4 rounded">
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 mt-4 rounded"
+        >
           Login
         </button>
         {error && <p className="text-red-500 mt-2">{error}</p>}

@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     response.headers.set('Set-Cookie', cookie);
 
     return response;
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Server Error' }, { status: 500 });
   }
 }

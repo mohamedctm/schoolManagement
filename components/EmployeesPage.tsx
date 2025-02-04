@@ -1,9 +1,9 @@
 "use client";
-import Layout from "@/app/layout";
+// import Layout from "@/app/layout";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import Link from "next/link";
+// import Link from "next/link";
 
 // Define the Employee interface
 interface Employee {
