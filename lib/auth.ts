@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "./supabase";
 
-export function RequireAuth() {
+export function useRequireAuth() {
   const router = useRouter();
 
   useEffect(() => {
