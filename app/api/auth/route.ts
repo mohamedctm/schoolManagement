@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 
-export async function GET(req: Request) {
+export async function GET(req: Request,error:Erorr) {
   const token = req.headers.get('cookie')?.split('token=')[1]?.split(';')[0];
 
   if (!token) {
