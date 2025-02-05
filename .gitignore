@@ -1,0 +1,9 @@
+# Ignore node_modules folder
+node_modules/
+
+# Optionally ignore lock files and build output
+pnpm-lock.yaml
+package-lock.json
+.next/
+out/
+.env*
