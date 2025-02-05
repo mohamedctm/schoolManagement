@@ -1,5 +1,5 @@
 'use client';
-
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -30,8 +30,8 @@ export default function Dashboard() {
     <div className="p-6">
       <h1 className="text-2xl font-bold">Welcome, {user.username}!</h1>
       <nav className="mt-4">
-        <a href="/employees" className="block text-blue-500">Manage Employees</a>
-        <a href="/students" className="block text-blue-500 mt-2">Manage Students</a>
+        <Link href="/employees" className="block text-blue-500">Manage Employees</Link>
+        <Link href="/students" className="block text-blue-500 mt-2">Manage Students</Link>
       </nav>
     </div>
   );

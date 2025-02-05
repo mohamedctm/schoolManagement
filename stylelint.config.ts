@@ -5,6 +5,6 @@ module.exports = {
       {
         ignoreAtRules: ["apply", "variants", "responsive", "screen"]
       }
-    ]
+    ],
   }
 };

@@ -1,0 +1,5 @@
+.mydiv{display:flex;flex-direction:column;gap:4;}
+.mydiv h1{order:1;text-align:center}
+.mydiv button.b{order:1;display:inline-block;width:fit-content;
+  text-decoration:none;
+  padding:1rem;margin:.8rem auto}

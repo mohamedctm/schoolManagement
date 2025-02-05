@@ -2,18 +2,9 @@
 
 import NavMenu from "@/components/navMenu"; 
 import { usePathname } from "next/navigation";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname(); // ✅ Required for conditional rendering
@@ -23,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const showNav = !hideNavPages.includes(pathname);
 
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en">
       <body className="bg-gray-100">
         {showNav && <NavMenu />} {/* ✅ Conditionally render NavMenu */}
         <main className="p-6">{children}</main>

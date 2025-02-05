@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import bcrypt from "bcryptjs";
 // import Link from "next/link";
 
 // Define the Employee interface
@@ -77,13 +78,15 @@ export default function EmployeesPage() {
         })
         .eq("id", form.id);
     } else {
+      // Hash the password using bcryptjs before inserting
+      const hashedPassword = await bcrypt.hash(form.password, 10);
       await supabase.from("employees").insert([
         {
           name: form.name,
           email: form.email,
           position: form.position,
           username: form.username,
-          password: form.password
+          password: hashedPassword
         }
       ]);
     }
