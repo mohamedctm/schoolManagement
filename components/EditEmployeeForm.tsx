@@ -14,11 +14,28 @@ interface EditEmployeeFormProps {
 export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
   const router = useRouter();
 
-  const [employee, setEmployee] = useState<Employee | null>(null);
-  const [salary, setSalary] = useState<Salary | null>(null);
-  const [employeeInfo, setEmployeeInfo] = useState<EmployeeInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  
+  const [salary, setSalary] = useState<Salary>({
+    id: 0, // Ensures id is always present
+    salary: 0
+  });
+  const [employee, setEmployee] = useState<Employee>({
+    id: 0, // Ensures id is always present
+    name: "",
+    email: "",
+    position: "",
+    username: "",
+    password: "",
+    last_name: "",
+  });
+
+  const [employeeInfo, setEmployeeInfo] = useState<EmployeeInfo>({
+    id: 0, // Ensures id is always present
+    address: "",
+    phone_number: ""
+  });
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
