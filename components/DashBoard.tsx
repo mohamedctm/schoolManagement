@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Users, GraduationCap } from "lucide-react";
 
 export default function Dashboard() {
   const [user, setUser] = useState<{ username: string } | null>(null);
@@ -23,15 +24,22 @@ export default function Dashboard() {
   }, [router]);
 
   if (!user) {
-    return <div>Loading...</div>;
+    return   <div className="text-4xl font-bold bg-gradient-to-r from-fuchsia-700 to-yellow-500 bg-clip-text text-transparent mb-6">
+Loading...</div>;
   }
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold">Welcome, {user.username}!</h1>
-      <nav className="mt-4">
-        <Link href="/employees" className="block text-blue-500">Manage Employees</Link>
-        <Link href="/students" className="block text-blue-500 mt-2">Manage Students</Link>
+      <h1 className="text-2xl font-bold"></h1>
+      <nav className="mt-6 flex gap-4">
+        <Link href="/employees" className="flex items-center gap-2 p-4 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition">
+          <Users size={24} />
+          <span>Manage Employees</span>
+        </Link>
+        <Link href="/students" className="flex items-center gap-2 p-4 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition">
+          <GraduationCap size={24} />
+          <span>Manage Students</span>
+        </Link>
       </nav>
     </div>
   );

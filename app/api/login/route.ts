@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
     }
     
-    const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user.id, username: user.username, last_name: user.last_name }, process.env.JWT_SECRET, {
       expiresIn: '1h',
     });
 

@@ -13,5 +13,5 @@ export function middleware(req: Request) {
 
 // ✅ Apply middleware to all protected routes
 export const config = {
-  matcher: ['/dashboard', '/employees', '/students'], // Adjust for your protected routes
+  matcher: ['/dashboard', '/employees', '/addEmployee', '/students', '/editEmployee/[id]'], // Adjust for your protected routes
 };

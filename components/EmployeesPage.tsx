@@ -1,39 +1,16 @@
 "use client";
-// import Layout from "@/app/layout";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import bcrypt from "bcryptjs";
-// import Link from "next/link";
+import Link from "next/link";
+import { Employee } from "@/types/employee";
+import Heading from "@/components/Heading";
 
-// Define the Employee interface
-interface Employee {
-  id: number;
-  name: string;
-  email: string;
-  position: string;
-  username: string;
-  password: string;
-}
 
 export default function EmployeesPage() {
-  // Use the Employee interface for state instead of any
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [form, setForm] = useState<Employee>({
-    id: 0,
-    name: "",
-    email: "",
-    position: "",
-    username: "",
-    password: ""
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [showModal, setShowModal] = useState(false);
   const router = useRouter();
-
-  const positions = ["CEO", "Manager", "Director", "Accountant", "Teacher"];
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -48,231 +25,56 @@ export default function EmployeesPage() {
   }, [router]);
 
   const fetchEmployees = async () => {
-    const { data, error } = await supabase
-      .from("employees")
-      .select("id, name, email, position, username");
-
-    if (!error && data) {
-      // The password field is not returned by the query,
-      // so we add an empty string for each employee.
-      const employeesWithPassword = data.map((emp: any) => ({
-        ...emp,
-        password: ""
-      }));
-      setEmployees(employeesWithPassword);
-    }
-  };
-
-  const handleAddOrUpdateEmployee = async () => {
-    if (isEditing) {
-      const confirmEdit = confirm("Are you sure you want to update this employee?");
-      if (!confirmEdit) return;
-
-      await supabase
-        .from("employees")
-        .update({
-          name: form.name,
-          email: form.email,
-          position: form.position,
-          username: form.username
-        })
-        .eq("id", form.id);
-    } else {
-      // Hash the password using bcryptjs before inserting
-      const hashedPassword = await bcrypt.hash(form.password, 10);
-      await supabase.from("employees").insert([
-        {
-          name: form.name,
-          email: form.email,
-          position: form.position,
-          username: form.username,
-          password: hashedPassword
-        }
-      ]);
-    }
-    resetForm();
-    fetchEmployees();
+    const { data, error } = await supabase.from("employees").select("*");
+    if (!error && data) setEmployees(data);
   };
 
   const handleDeleteEmployee = async (id: number) => {
-    const confirmDelete = confirm("Are you sure you want to delete this employee?");
-    if (!confirmDelete) return;
+    if (!confirm("Are you sure you want to delete this employee?")) return;
 
-    await supabase.from("employees").delete().eq("id", id);
-    fetchEmployees();
-  };
+    try {
+      // Delete salary record
+      await supabase.from("salary").delete().eq("id", id);
+      
+      // Delete employee_info record
+      await supabase.from("employee_info").delete().eq("id", id);
 
-  const handleEditEmployee = (employee: Employee) => {
-    setForm({ ...employee, password: "" });
-    setIsEditing(true);
-    setShowForm(true);
-  };
+      // Delete employee record
+      await supabase.from("employees").delete().eq("id", id);
 
-  const handleViewEmployee = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    setShowModal(true);
-  };
-
-  const resetForm = () => {
-    setForm({
-      id: 0,
-      name: "",
-      email: "",
-      position: "",
-      username: "",
-      password: ""
-    });
-    setIsEditing(false);
-    setShowForm(false);
+      fetchEmployees();
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+    }
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Employees</h1>
-
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
-      >
-        {showForm ? "Hide Form" : "Add Employee"}
-      </button>
-
-      {showForm && (
-        <div className="bg-gray-100 p-4 rounded-lg mb-4">
-          <label className="block mb-1">Name</label>
-          <input
-            type="text"
-            value={form.name}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, name: e.target.value }))
-            }
-            className="w-full p-2 mb-2 border border-gray-300 rounded"
-          />
-          <label className="block mb-1">Email</label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, email: e.target.value }))
-            }
-            className="w-full p-2 mb-2 border border-gray-300 rounded"
-          />
-          <label className="block mb-1">Position</label>
-          <select
-            value={form.position}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, position: e.target.value }))
-            }
-            className="w-full p-2 mb-2 border border-gray-300 rounded"
-          >
-            <option value="">Select Position</option>
-            {positions.map((pos) => (
-              <option key={pos} value={pos}>
-                {pos}
-              </option>
-            ))}
-          </select>
-          <label className="block mb-1">Username</label>
-          <input
-            type="text"
-            value={form.username}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, username: e.target.value }))
-            }
-            className="w-full p-2 mb-2 border border-gray-300 rounded"
-          />
-          {!isEditing && (
-            <>
-              <label className="block mb-1">Password</label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, password: e.target.value }))
-                }
-                className="w-full p-2 mb-2 border border-gray-300 rounded"
-              />
-            </>
-          )}
-          <div className="flex gap-2">
-            <button
-              onClick={handleAddOrUpdateEmployee}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            >
-              {isEditing ? "Update Employee" : "Add Employee"}
-            </button>
-            {isEditing && (
-              <button
-                onClick={resetForm}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                Cancel
+    <div className="p-6 max-w-4xl mx-auto h-screen">
+      <div className="flex justify-between items-center mb-4">
+        <Heading>Employees</Heading>
+        <Link href="/addEmployee" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          Add Employee
+        </Link>
+      </div>
+      <div className="bg-white shadow rounded-lg p-4 h-[80vh] overflow-auto flex flex-col gap-4">
+        {employees.map((employee) => (
+          <div key={employee.id} className="border border-gray-300 p-4 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div className="flex flex-col md:flex-row md:items-center gap-4">
+              <h2 className="text-lg font-semibold">{employee.name} {employee.last_name}</h2>
+              <p className="text-gray-600">Email: {employee.email}</p>
+              <p className="text-gray-600">Position: {employee.position}</p>
+            </div>
+            <div className="flex gap-2 mt-2 md:mt-0">
+              <button onClick={() => handleDeleteEmployee(employee.id)} className="bg-orange-700 text-white px-3 py-1 rounded hover:bg-red-500">
+                Delete
               </button>
-            )}
+              <Link href={`/editEmployee/${employee.id}`} className="bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-500">
+                manage
+              </Link>
+            </div>
           </div>
-        </div>
-      )}
-
-      <ul className="bg-white shadow rounded-lg p-4">
-        {employees.length === 0 ? (
-          <p className="text-gray-500">No employees found.</p>
-        ) : (
-          employees
-            .slice() // Create a copy to avoid state mutation
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map((employee) => (
-              <li
-                key={employee.id}
-                className="flex justify-between items-center border-b p-2 last:border-none"
-              >
-                <div>
-                  <p className="font-semibold">
-                    {employee.name} ({employee.position})
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleViewEmployee(employee)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => handleEditEmployee(employee)}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteEmployee(employee.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))
-        )}
-      </ul>
-
-      {showModal && selectedEmployee && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-bold mb-2">
-              {selectedEmployee.name}
-            </h2>
-            <p>Email: {selectedEmployee.email}</p>
-            <p>Position: {selectedEmployee.position}</p>
-            <p>Username: {selectedEmployee.username}</p>
-            <button
-              onClick={() => setShowModal(false)}
-              className="bg-gray-500 text-white px-4 py-2 mt-4 rounded hover:bg-gray-600"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 }
