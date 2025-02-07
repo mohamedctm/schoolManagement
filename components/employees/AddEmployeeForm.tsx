@@ -5,15 +5,13 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Heading from "@/components/Heading";
-import bcrypt from "bcryptjs";
+// import bcrypt from "bcryptjs";
 
 export default function AddEmployeePage() {
   const [form, setForm] = useState({
     name: "",
     email: "",
     position: "",
-    username: "",
-    password: "",
     last_name: "",
   });
   const [message, setMessage] = useState("");
@@ -23,10 +21,13 @@ export default function AddEmployeePage() {
     e.preventDefault();
     
     // Hash the password before inserting
-    const hashedPassword = await bcrypt.hash(form.password, 10);
+    // const hashedPassword = await bcrypt.hash(form.password, 10);
     
+    // const { data, error } = await supabase.from("employees").insert([
+    //   { ...form, password: hashedPassword }
+    // ]).select("id").single();
     const { data, error } = await supabase.from("employees").insert([
-      { ...form, password: hashedPassword }
+      { ...form }
     ]).select("id").single();
     
     if (error || !data) {
@@ -38,7 +39,7 @@ export default function AddEmployeePage() {
       await supabase.from("employee_info").insert([{ id: employeeId, address: "", phone_number: "" }]);
       
       setMessage(`Employee ${form.name} has been created successfully!`);
-      setForm({ name: "", email: "", position: "", username: "", password: "", last_name: "" });
+      setForm({ name: "", email: "", position: "", last_name: "" });
     }
   };
 
@@ -66,11 +67,11 @@ export default function AddEmployeePage() {
           <option value="Accountant">Accountant</option>
           <option value="Teacher">Teacher</option>
         </select>
-        <input type="text" placeholder="Username" autoComplete="create a user name" className="w-full p-2 border border-gray-300 rounded mb-2" 
+        {/* <input type="text" placeholder="Username" autoComplete="create a user name" className="w-full p-2 border border-gray-300 rounded mb-2" 
           value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required />
         <input type="password" placeholder="Password" autoComplete="new-password" className="w-full p-2 border border-gray-300 rounded mb-4" 
           value={form.password}
-           onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+           onChange={(e) => setForm({ ...form, password: e.target.value })} required /> */}
         <button type="submit" className="w-full bg-yellow-400 text-white px-4 py-2 rounded hover:bg-pink-400">
           Create Employee
         </button>

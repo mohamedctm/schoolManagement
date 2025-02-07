@@ -52,7 +52,7 @@ export default function EmployeesPage() {
     <div className="p-6 max-w-4xl mx-auto h-screen">
       <div className="flex justify-between items-center mb-4">
         <Heading>Employees</Heading>
-        <Link href="/addEmployee" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <Link href="/employees/add" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
           Add Employee
         </Link>
       </div>
@@ -68,7 +68,7 @@ export default function EmployeesPage() {
               <button onClick={() => handleDeleteEmployee(employee.id)} className="bg-orange-700 text-white px-3 py-1 rounded hover:bg-red-500">
                 Delete
               </button>
-              <Link href={`/editEmployee/${employee.id}`} className="bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-500">
+              <Link href={`/employees/edit/${employee.id}`} className="bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-500">
                 manage
               </Link>
             </div>

@@ -129,7 +129,7 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>wait...</p>;
 
   return (
     <div className="p-6 max-w-lg mx-auto h-screen">
@@ -139,6 +139,9 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
           Back to Employees
         </Link>
       </div>
+     {!employee?.username && ( <Link href={`/employees/username/${id}`} className="bg-yellow-600 text-white  px-3 py-3 rounded hover:bg-yellow-500">
+                create username
+              </Link>)}
       {message && <p className="text-green-600 font-semibold mb-4">{message}</p>}
       <div className="bg-white shadow rounded-lg p-6 space-y-4">
         <div>
@@ -164,13 +167,16 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
             value={employee?.email || ""}
             onChange={(e) => setEmployee({ ...employee, email: e.target.value })}
           />
-          <input
-            type="text"
-            placeholder="Position"
-            className="w-full p-2 border border-gray-300 rounded mb-2"
-            value={employee?.position || ""}
-            onChange={(e) => setEmployee({ ...employee, position: e.target.value })}
-          />
+          <select className="w-full p-2 border border-gray-300 rounded mb-2" 
+  value={employee?.position || ""} 
+  onChange={(e) => setEmployee({ ...employee, position: e.target.value })} required>
+  <option value="" disabled>Select Position</option>
+  <option value="CEO">CEO</option>
+  <option value="Manager">Manager</option>
+  <option value="Director">Director</option>
+  <option value="Accountant">Accountant</option>
+  <option value="Teacher">Teacher</option>
+</select>
         </div>
         <div>
           <h2 className="text-lg font-semibold">Salary Information</h2>

@@ -21,8 +21,7 @@ body {
 }
 /* styles/globals.css */
 body {
-  @apply bg-gray-100 relative overflow-hidden;
-}
+margin:0;}
 
 body::before,
 body::after {

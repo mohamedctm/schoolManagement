@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import StudentPage from "@/components/StudentPage";
+import StudentPage from "@/components/students/StudentPage";
 
 export default function Page() {
   return (

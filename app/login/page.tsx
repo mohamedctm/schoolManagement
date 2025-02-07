@@ -38,8 +38,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8">
-      <Image src="/logo-min.png" priority alt="Logo" width={200} height={220} style={{ width: "auto", height: "auto" }} className="mb-5" />
+    <div className="flex flex-col items-center justify-center min-lg-screen p-4">
+      <Image src="/logo-min.png" priority alt="Logo" width={110} height={116} style={{ width: "auto", height: "auto" }} className="mb-5" />
       <h1 className="text-4xl font-bold bg-gradient-to-r from-fuchsia-700 to-yellow-500 bg-clip-text text-transparent mb-6">
         Login
       </h1>

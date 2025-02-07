@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import EmployeesPage from "@/components/EmployeesPage";
+import EmployeesPage from "@/components/employees/EmployeesPage";
 
 export default function Page() {
   return (

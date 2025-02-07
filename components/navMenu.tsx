@@ -1,20 +1,27 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LayoutDashboard, LogOut } from "lucide-react";
 
 export default function NavMenu() {
   const pathname = usePathname();
 
-  const pagesWithNav = ["/dashboard", "/employees", "/students", "/addEmployee", "/editEmployee/[id]"];
+  const pagesWithNav = ["/dashboard", "/employees", "/students", "/employees/add"];
+  
+  const isPageWithNav = (path: string) => {
+    return pagesWithNav.includes(path) || path.startsWith("/employees/");
+  };
 
-  if (!pagesWithNav.includes(pathname)) return null; // ✅ Hide on other pages
+  if (!isPageWithNav(pathname)) return null; // ✅ Hide on other pages
 
   return (
-    <nav className="bg-white text-black p-5 flex justify-between border-b border-gray-300">
-      <div>
-        <Link href="/dashboard" className={`mr-4 ${pathname === "/dashboard" ? "font-bold" : ""}`}>Dashboard</Link>
-      </div>
-      <Link href="/logout" className="bg-gray-100 text-gray-400 px-4 py-2 rounded hover:bg-red-500 hover:text-white">Logout</Link>
+    <nav className="bg-white text-gray-700 gap-2 p-5 flex justify-between border-b border-gray-300">
+        <Link href="/dashboard" className={`mr-4 flex items-center gap-2 ${pathname === "/dashboard" ? " text-purple-800" : ""}`}>
+          <LayoutDashboard size={20} /> Dashboard
+        </Link>
+      <Link href="/logout" className="flex items-center gap-2 bg-gray-100 text-gray-400 px-4 py-2 rounded hover:bg-red-500 hover:text-white">
+        <LogOut size={20} /> Logout
+      </Link>
     </nav>
   );
 }
