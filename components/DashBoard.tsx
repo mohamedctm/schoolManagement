@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Users, GraduationCap } from "lucide-react";
+import { Users, GraduationCap, Package } from "lucide-react";
 
 export default function Dashboard() {
   const [user, setUser] = useState<{ username: string } | null>(null);
@@ -32,13 +32,17 @@ Loading...</div>;
     <div className="p-6">
       <h1 className="text-2xl font-bold"></h1>
       <nav className="mt-6 flex gap-4">
-        <Link href="/employees" className="flex items-center gap-2 p-4 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition">
+        <Link href="/employees" className="flex items-center gap-2 p-4 bg-blue-700 text-white rounded-lg shadow-md hover:bg-blue-600 transition">
           <Users size={24} />
           <span>Manage Employees</span>
         </Link>
-        <Link href="/students" className="flex items-center gap-2 p-4 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition">
+        <Link href="/students" className="flex items-center gap-2 p-4 bg-green-700 text-white rounded-lg shadow-md hover:bg-green-600 transition">
           <GraduationCap size={24} />
           <span>Manage Students</span>
+        </Link>
+        <Link href="/storage" className="flex items-center gap-2 p-4 bg-fuchsia-700 text-white rounded-lg shadow-md hover:bg-fuchsia-600 transition">
+          <Package size={24} />
+          <span>Storage</span>
         </Link>
       </nav>
     </div>
