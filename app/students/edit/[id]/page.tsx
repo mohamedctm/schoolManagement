@@ -1,7 +1,7 @@
 "use client";
 import { Suspense } from "react";
 import { useParams } from "next/navigation";
-import EditEmployeeForm from "@/components/employees/EditEmployeeForm";
+import EditStudentForm from "@/components/students/EditStudentForm";
 
 export default function Page() {
   const params = useParams(); // Get the employee ID from the URL
@@ -9,7 +9,7 @@ export default function Page() {
 
   return (
     <Suspense fallback={<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 mx-auto mt-6"></div>}>
-      <EditEmployeeForm id={id} />
+      <EditStudentForm id={id} />
     </Suspense>
   );
 }

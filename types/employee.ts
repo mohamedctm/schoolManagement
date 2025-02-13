@@ -13,12 +13,22 @@ export interface Employee {
   export interface Salary {
     id: number; // Matches Employee ID
     salary: number;
+    contract_length: number;
+    contract_copy: string;
   }
   
   export interface EmployeeInfo {
     id: number; // Matches Employee ID
     address: string;
     phone_number: string;
+    marital_status: string;
+    residency_status: string;
+    nationality: string;
+    residency_country: string;
+    identification_type: string;
+    identification_number: string;
+    gender:string;
+    birth_date: string;
   }
   
   export interface EmployeeID {

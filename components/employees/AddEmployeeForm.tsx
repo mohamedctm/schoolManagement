@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Heading from "@/components/Heading";
+import { ArrowLeft } from "lucide-react";
+
 // import bcrypt from "bcryptjs";
 
 export default function AddEmployeePage() {
@@ -46,10 +48,12 @@ export default function AddEmployeePage() {
   return (
     <div className="p-6 max-w-lg mx-auto h-screen">
       <div className="flex justify-between items-center mb-4">
-        <Heading> Add Employee</Heading>
-        <Link href="/employees" className="bg-white text-black px-4 py-2 rounded hover:bg-red-600 hover:text-white">
-          Back to Employees
+      <Link href="/employees" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-600 hover:text-white">
+      <ArrowLeft size={20} /> &nbsp; back to Employees
         </Link>
+      </div>
+      <div className="flex justify-between items-center mb-4">
+        <Heading> Add Employee</Heading>
       </div>
       <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6">
         <input type="text" placeholder="employee first name" className="w-full p-2 border border-gray-300 rounded mb-2" 
@@ -61,11 +65,23 @@ export default function AddEmployeePage() {
         <select className="w-full p-2 border border-gray-300 rounded mb-2" 
           value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} required>
           <option value="" disabled>Select Position</option>
-          <option value="CEO">CEO</option>
-          <option value="Manager">Manager</option>
-          <option value="Director">Director</option>
+          <option value="Director General">Director General</option>
+          <option value="school Principal">school Principal</option>
+          <option value="Director General">Director General</option>
+          <option value="School Secretary General">School Secretary General</option>
+          <option value="Academic Coordinator">Academic Coordinator</option>
+          <option value="Head Teacher">Head Teacher</option>
+          <option value="Assistance Head Teacher">Assistance Head Teacher</option>
+          <option value="Deputy Head Teacher">Deputy Head Teacher</option>
+          <option value="Head Teacher/ Arabic Seciotn">Head Teacher/ Arabic Seciotn</option>
+          <option value="Finance & HR">Finance & HR</option>
+          <option value="Head/Secondary">Head/Secondary</option>
+          <option value="Head/Primary">Head/Primary</option>
+          <option value="Head/Kgs">Head/Kgs</option>
+          <option value="School Officer">School Officer</option>
+          <option value="School Advisor">School Advisor</option>
           <option value="Accountant">Accountant</option>
-          <option value="Teacher">Teacher</option>
+
         </select>
         {/* <input type="text" placeholder="Username" autoComplete="create a user name" className="w-full p-2 border border-gray-300 rounded mb-2" 
           value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required />
