@@ -7,6 +7,8 @@ import { Employee, Salary, EmployeeInfo } from "@/types/employee";
 import Heading from "@/components/Heading";
 import { ArrowLeft, Plus, Upload } from "lucide-react";
 import countries from "world-countries";
+import { useRouter } from "next/navigation";
+
 
 interface EditEmployeeFormProps {
   id: string;
@@ -44,6 +46,8 @@ const initialEmployeeInfoState: EmployeeInfo = {
 };
 
 export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [updateLoading, setUpdateLoading] = useState(false);
@@ -92,7 +96,18 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) setContractFile(e.target.files[0]);
   };
-
+  const handleDeleteEmployee = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this employee?")) return;
+  
+    try {
+      await supabase.from("salary").delete().eq("id", id);
+      await supabase.from("employee_info").delete().eq("id", id);
+      await supabase.from("employees").delete().eq("id", id);
+      router.push("/employees");
+    } catch (error) {
+      console.error("Error deleting student:", error);
+    }
+  };
   const handleUpdate = async () => {
     setUpdateLoading(true);
     if (!employee || !salary || !employeeInfo) return;
@@ -170,8 +185,8 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
   return (
     <div className="p-6 max-w-[90%] mx-auto py-5 h-screen">
       <div className="flex justify-between items-center mb-4">
-        <Link href="/employees" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-600 hover:text-white">
-          <ArrowLeft size={20} /> &nbsp; back to Employees
+      <Link href="/employees" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
+      <ArrowLeft size={20} /> &nbsp; back to Employees
         </Link>
       </div>
       <div className="flex justify-between items-center mb-4">
@@ -187,7 +202,7 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
       <p className="text-green-600 text-xl font-normal mb-4"> {message && <span>{message}</span>}</p>
 
       {/* Update Button at the Top */}
-      <button onClick={handleUpdate} className="w-fit bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 mt-4">
+      <button onClick={handleUpdate} className="w-fit bg-green-200 text-green-800 px-4 py-2 rounded hover:bg-green-600 hover:text-white mt-4">
       {!updateLoading? 'Update Employee': 'updating..'}
       </button>
 
@@ -221,7 +236,7 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
 
         {/* Salary Info */}
         <div className="bg-white shadow-lg rounded-lg p-6 w-full md:w-[40%]">
-          <h2 className="text-lg text-gray-400 font-medium mb-4">Salary Information</h2>
+          <h2 className="text-lg text-gray-400 font-medium mb-4">Employment Information</h2>
           <input type="number" placeholder="Salary" className="w-full p-2 border border-gray-300 rounded mb-2" value={salary?.salary || ""} onChange={(e) => setSalary({ ...salary, salary: Number(e.target.value) })} />
           <input type="number" placeholder="Contract Length (months)" className="w-full p-2 border border-gray-300 rounded mb-2" value={salary?.contract_length || ""} onChange={(e) => setSalary({ ...salary, contract_length: Number(e.target.value) })} />
           {/* File Upload */}
@@ -307,10 +322,17 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
       </div>
 
       {/* Update Button at the Bottom */}
-      <button onClick={handleUpdate} className="w-fit bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 mt-4">
+      <button onClick={handleUpdate} className="w-fit bg-green-200 text-green-800 px-4 py-2 rounded hover:bg-green-600 hover:text-white mt-4">
       {!updateLoading? 'Update Employee': 'updating..'}
       </button>
-      <p className="py-12">&nbsp;</p>
-    </div>
+      <p className="py-12 text-gray-400">&nbsp;Warning: Deleting a employee is permanent and cannot be undone.<br/></p>
+      <div className="bg-white text-gray-700 gap-2 p-5 flex justify-between border-b border-white">
+      <button
+                  onClick={() => handleDeleteEmployee(employee.id)}
+                  className="w-fit bg-gray-600 text-white px-4 py-2 rounded hover:bg-red-500 mt-4"
+                >
+                  Delete employee
+                </button>
+                </div>    </div>
   );
 }

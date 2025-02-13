@@ -33,7 +33,7 @@ export default function HomePage() {
       <DoorOpen size={20} /> login
     </Link>
     </nav>  
-        <p className="text-l text-gray:500 py-10 text-center">home  page </p>
+        <p className="text-l text-gray:500 py-10 text-center">Home page </p>
     </div>  
 );
 }

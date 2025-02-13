@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Employee } from "@/types/employee";
 import Heading from "@/components/Heading";
-import { Plus, Search } from "lucide-react";
+import { ArrowLeft, Plus, Search } from "lucide-react";
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -67,20 +67,14 @@ export default function EmployeesPage() {
     }
   };
 
-  const handleDeleteEmployee = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this employee?")) return;
-
-    try {
-      await supabase.from("salary").delete().eq("id", id);
-      await supabase.from("employee_info").delete().eq("id", id);
-      await supabase.from("employees").delete().eq("id", id);
-    } catch (error) {
-      console.error("Error deleting employee:", error);
-    }
-  };
 
   return (
     <div className="p-6 max-w-4xl mx-auto h-screen">
+     <div className="flex justify-between items-center mb-4">
+        <Link href="/dashboard" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
+          <ArrowLeft size={20} />Dashboard
+        </Link>
+      </div>
       <div className="flex justify-between items-center mb-4">
         <Heading>Employees</Heading>
       </div>
@@ -100,7 +94,7 @@ export default function EmployeesPage() {
         {/* Add Employee Button */}
         <Link
           href="/employees/add"
-          className="flex items-center gap-2 bg-white text-gray-600 hover:bg-green-600 hover:text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded"
         >
           <Plus size={20} />
           Add Employee
@@ -124,15 +118,9 @@ export default function EmployeesPage() {
                 <p className="text-gray-600">&#40; {employee.position} &#41;</p>
               </div>
               <div className="flex gap-2 mt-2 md:mt-0">
-                <button
-                  onClick={() => handleDeleteEmployee(employee.id)}
-                  className="bg-orange-700 text-white px-3 py-1 rounded hover:bg-red-500"
-                >
-                  Delete
-                </button>
                 <Link
                   href={`/employees/edit/${employee.id}`}
-                  className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-400"
+                  className="bg-green-200 text-green-800 px-3 py-1 rounded hover:bg-green-700 hover:text-white"
                 >
                   Manage
                 </Link>

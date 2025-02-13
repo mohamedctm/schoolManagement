@@ -3,7 +3,7 @@ import Heading from "@/components/Heading";
 import { Home, Mail, DoorOpen, Info } from "lucide-react";
 
 
-export default function HomePage() {
+export default function About() {
   return (
     <div>
     <nav className="bg-white text-gray-700 gap-6 p-5 flex justify-start border-b border-gray-300">
@@ -33,7 +33,7 @@ export default function HomePage() {
       <DoorOpen size={20} /> login
     </Link>
     </nav>  
-        <p className="text-l text-gray:500 py-10 text-center">home  page </p>
+        <p className="text-l text-gray:500 py-10 text-center">about us page </p>
     </div>  
 );
 }

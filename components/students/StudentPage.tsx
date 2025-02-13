@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Student } from "@/types/student";
 import Heading from "@/components/Heading";
-import { Plus, Search } from "lucide-react";
+import { ArrowLeft, Plus, Search } from "lucide-react";
 
 export default function EmployeesPage() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -67,19 +67,14 @@ export default function EmployeesPage() {
     }
   };
 
-  const handleDeleteStudent = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this student?")) return;
-
-    try {
-      await supabase.from("parents").delete().eq("id", id);
-      await supabase.from("students").delete().eq("id", id);
-    } catch (error) {
-      console.error("Error deleting student:", error);
-    }
-  };
 
   return (
     <div className="p-6 max-w-4xl mx-auto h-screen">
+      <div className="flex justify-between items-center mb-4">
+        <Link href="/dashboard" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
+          <ArrowLeft size={20} />Dashboard
+        </Link>
+      </div>
       <div className="flex justify-between items-center mb-4">
         <Heading>Students</Heading>
       </div>
@@ -99,7 +94,7 @@ export default function EmployeesPage() {
         {/* Add Employee Button */}
         <Link
           href="/students/add"
-          className="flex items-center gap-2 bg-white text-gray-600 hover:bg-green-600 hover:text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded"
         >
           <Plus size={20} />
           Add Student
@@ -123,15 +118,9 @@ export default function EmployeesPage() {
                 <p className="text-gray-600">&#40; {student.gender} &#41;</p>
               </div>
               <div className="flex gap-2 mt-2 md:mt-0">
-                <button
-                  onClick={() => handleDeleteStudent(student.id)}
-                  className="bg-orange-700 text-white px-3 py-1 rounded hover:bg-red-500"
-                >
-                  Remove
-                </button>
                 <Link
                   href={`/students/edit/${student.id}`}
-                  className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-400"
+                  className="bg-green-200 text-green-800 px-3 py-1 rounded hover:bg-green-700 hover:text-white"
                 >
                   Manage
                 </Link>

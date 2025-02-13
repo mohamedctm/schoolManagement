@@ -24,27 +24,27 @@ export default function Dashboard() {
   }, [router]);
 
   if (!user) {
-    return   <div className="text-4xl font-bold bg-gradient-to-r from-fuchsia-700 to-yellow-500 bg-clip-text text-transparent mb-6">
+    return   <div className="text-xl font-bold bg-gradient-to-r from-fuchsia-700 to-yellow-500 bg-clip-text text-transparent mb-6">
 Loading...</div>;
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold"></h1>
-      <nav className="mt-6 flex gap-4">
-        <Link href="/employees" className="flex items-center gap-2 p-4 bg-blue-700 text-white rounded-lg shadow-md hover:bg-blue-600 transition">
-          <Users size={24} />
-          <span>Manage Employees</span>
-        </Link>
-        <Link href="/students" className="flex items-center gap-2 p-4 bg-green-700 text-white rounded-lg shadow-md hover:bg-green-600 transition">
-          <GraduationCap size={24} />
-          <span>Manage Students</span>
-        </Link>
-        <Link href="/storage" className="flex items-center gap-2 p-4 bg-fuchsia-700 text-white rounded-lg shadow-md hover:bg-fuchsia-600 transition">
-          <Package size={24} />
-          <span>Storage</span>
-        </Link>
-      </nav>
+    <div className="p-6 w-full">
+      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <nav className="mt-6 flex flex-wrap gap-6 justify-center md:justify-start">
+  <Link href="/employees" className="flex w-60 items-center gap-2 p-4 bg-blue-700 text-white rounded-lg shadow-md hover:bg-blue-600 transition">
+    <Users size={24} />
+    <span>Manage Employees</span>
+  </Link>
+  <Link href="/students" className="flex w-60 items-center gap-2 p-4 bg-green-700 text-white rounded-lg shadow-md hover:bg-green-600 transition">
+    <GraduationCap size={24} />
+    <span>Manage Students</span>
+  </Link>
+  <Link href="/storage" className="flex w-60 items-center gap-2 p-4 bg-fuchsia-700 text-white rounded-lg shadow-md hover:bg-fuchsia-600 transition">
+    <Package size={24} />
+    <span>Storage</span>
+  </Link>
+</nav>
     </div>
   );
 }

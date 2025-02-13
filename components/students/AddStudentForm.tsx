@@ -47,7 +47,7 @@ export default function AddStudentPage() {
   return (
     <div className="p-6 max-w-lg mx-auto h-screen">
       <div className="flex justify-between items-center mb-4">
-      <Link href="/students" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-600 hover:text-white">
+      <Link href="/students" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
       <ArrowLeft size={20} /> &nbsp; back to Student
         </Link>
       </div>
@@ -74,8 +74,8 @@ export default function AddStudentPage() {
         <input type="password" placeholder="Password" autoComplete="new-password" className="w-full p-2 border border-gray-300 rounded mb-4" 
           value={form.password}
            onChange={(e) => setForm({ ...form, password: e.target.value })} required /> */}
-        <button type="submit" className="w-full bg-yellow-400 text-white px-4 py-2 rounded hover:bg-pink-400">
-          Create Student
+        <button type="submit" className="w-full bg-green-200 text-lg text-green-800 px-4 py-2 rounded hover:bg-green-600 hover:text-green-100">
+          Add Student
         </button>
       </form>
       {message && <p className="mt-6 text-green-500 text-xl font-mono">{message}</p>}

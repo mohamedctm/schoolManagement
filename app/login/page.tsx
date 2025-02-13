@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -79,6 +81,11 @@ export default function LoginPage() {
         </button>
         {error && <p className="text-red-500 mt-4">{error}</p>}
       </form>
+      <br/>
+      <Link href="/" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
+      <ArrowLeft size={20} /> &nbsp; back to website
+        </Link>
     </div>
+    
   );
 }
