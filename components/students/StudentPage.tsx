@@ -8,32 +8,37 @@ import { Student } from "@/types/student";
 import Heading from "@/components/Heading";
 import { ArrowLeft, Plus, Search } from "lucide-react";
 
-export default function EmployeesPage() {
+export default function StudentPage() {
   const [students, setStudents] = useState<Student[]>([]);
-  const [filteredStudents, setfilteredStudents] = useState<Student[]>([]); // State for filtered employees
+  const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const response = await fetch("/api/auth", { credentials: "include" });
-      if (!response.ok) {
-        router.push("/login");
-        return;
+    (async () => {
+      try {
+        const response = await fetch("/api/auth", { credentials: "include" });
+        if (!response.ok) {
+          router.push("/login");
+          return;
+        }
+        fetchEmployees();
+      } catch (error) {
+        console.error("Auth check failed:", error);
       }
-      fetchEmployees();
-    };
-    checkAuth();
+    })();
   }, [router]);
 
   // ✅ Fetch Employees Initially
   const fetchEmployees = async () => {
     setLoading(true);
     const { data, error } = await supabase.from("students").select("*");
-    if (!error && data) {
+    if (error) {
+      console.error("Error fetching students:", error);
+    } else {
       setStudents(data);
-      setfilteredStudents(data); // Initialize filtered employees with all employees
+      setFilteredStudents(data);
     }
     setLoading(false);
   };
@@ -43,7 +48,7 @@ export default function EmployeesPage() {
     const subscription = supabase
       .channel("students")
       .on("postgres_changes", { event: "*", schema: "public", table: "students" }, () => {
-        fetchEmployees(); // Re-fetch employees when DB updates
+        fetchEmployees();
       })
       .subscribe();
 
@@ -56,17 +61,16 @@ export default function EmployeesPage() {
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (query === "") {
-      setfilteredStudents(students); // Reset to all employees if search query is empty
+      setFilteredStudents(students);
     } else {
       const filtered = students.filter(
-        (students) =>
-          students.first_name.toLowerCase().includes(query.toLowerCase()) ||
-        students.last_name.toLowerCase().includes(query.toLowerCase())
+        (student) =>
+          student.first_name.toLowerCase().includes(query.toLowerCase()) ||
+          student.last_name.toLowerCase().includes(query.toLowerCase())
       );
-      setfilteredStudents(filtered); // Update filtered employees
+      setFilteredStudents(filtered);
     }
   };
-
 
   return (
     <div className="p-6 max-w-4xl mx-auto h-screen">
@@ -91,7 +95,7 @@ export default function EmployeesPage() {
           />
         </div>
 
-        {/* Add Employee Button */}
+        {/* Add Student Button */}
         <Link
           href="/students/add"
           className="flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded"
@@ -100,7 +104,7 @@ export default function EmployeesPage() {
           Add Student
         </Link>
       </div>
-      <div className="bg-white shadow rounded-lg p-4 h-[80vh] overflow-auto flex flex-col gap-4">
+      <div id="students" className="bg-white shadow rounded-lg p-4 py-8 lex-grow (flex-1) overflow-auto flex flex-col gap-4">
         {loading ? (
           <p className="text-center text-gray-500">Loading...</p>
         ) : filteredStudents.length === 0 ? (
@@ -109,13 +113,13 @@ export default function EmployeesPage() {
           filteredStudents.map((student) => (
             <div
               key={student.id}
-              className="border border-gray-300 p-4 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+              className="border border-gray-300 p-4 py-6 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-2"
             >
-              <div className="flex flex-col md:flex-row md:items-center gap-4">
-                <h2 className="text-lg font-semibold">
+              <div className="flex flex-row flex-wrap md:flex-row md:items-center gap-4">
+                <h2 className="text-lg font-light">
                   {student.first_name} {student.last_name}
                 </h2>
-                <p className="text-gray-600">&#40; {student.gender} &#41;</p>
+                {/* <p className="text-gray-600">&#40; {student.gender ?? "N/A"} &#41;</p> */}
               </div>
               <div className="flex gap-2 mt-2 md:mt-0">
                 <Link

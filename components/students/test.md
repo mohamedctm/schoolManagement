@@ -39,9 +39,6 @@ const initialParentsState: Parents = {
   address_country: "",
   phone_number1: "",
   phone_number2: "",
-  emergency_fname: "",
-  emergency_lname: "",
-  emergency_number: "",
 };
 
 export default function EditStudentForm({ id }: EditStudentFormProps) {
@@ -53,22 +50,10 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [student, setStudent] = useState<Student>(initialStudentState);
   const [parents, setParents] = useState<Parents>(initialParentsState);
-  const [expandedSection1, setExpandedSection1] = useState<string | null>("basic"); // Set "basic" as default expanded section
-  const [expandedSection2, setExpandedSection2] = useState<string | null>("parent1"); // Set "basic" as default expanded section
-  const [expandedSection3, setExpandedSection3] = useState<string | null>("parent2"); // Set "basic" as default expanded section
-  const [expandedSection4, setExpandedSection4] = useState<string | null>("additional"); // Set "basic" as default expanded section
+  const [expandedSection, setExpandedSection] = useState<string | null>("basic"); // Set "basic" as default expanded section
 
-  const toggleSection1 = (section: string) => {
-    setExpandedSection1(expandedSection1 === section ? null : section);
-  };
-  const toggleSection2 = (section: string) => {
-    setExpandedSection2(expandedSection2 === section ? null : section);
-  };
-  const toggleSection3 = (section: string) => {
-    setExpandedSection3(expandedSection3 === section ? null : section);
-  };
-  const toggleSection4 = (section: string) => {
-    setExpandedSection4(expandedSection4 === section ? null : section);
+  const toggleSection = (section: string) => {
+    setExpandedSection(expandedSection === section ? null : section);
   };
 
   useEffect(() => {
@@ -152,37 +137,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
       setMessage("Failed to change student status.");
     }
   };
-// counting null 
-function countNullValues(record: Record<string, any>) {
-    return Object.values(record).filter((value) => value === null || value === "").length;
-  }
-  
-  //mother
-  const fatherRecord = {
 
-  parent_one_first_name: parents.parent_one_first_name,
-  parent_one_last_name: parents.parent_one_last_name,
-  parent_one_status: parents.parent_one_status,
-  parent_one_nationality: parents.parent_one_nationality,
-  parent_one_residency_status: parents.parent_one_residency_status,
-  phone_number1: parents.phone_number1,
-  }
-  const motherRecord = {
-    parent_two_first_name: parents.parent_two_first_name,
-    parent_two_last_name: parents.parent_two_last_name,
-    parent_two_status: parents.parent_two_status,
-    parent_two_nationality: parents.parent_two_nationality,
-    parent_two_residency_status: parents.parent_two_residency_status,
-    phone_number2: parents.phone_number2,
-    }
-    const additional = {
-        address: parents.address,
-        address_country: parents.address_country,
-        emergency_fname: parents.emergency_fname,
-        emergency_lname: parents.emergency_lname,
-        emergency_number: parents.emergency_number,
-        }
-// 
   const handleDeleteStudent = async (id: number) => {
     if (!confirm("Are you sure you want to delete this student?")) return;
 
@@ -236,9 +191,6 @@ function countNullValues(record: Record<string, any>) {
           address_country: parents.address_country,
           phone_number1: parents.phone_number1,
           phone_number2: parents.phone_number2,
-          emergency_fname: parents.emergency_fname,
-        emergency_lname: parents.emergency_lname,
-        emergency_number: parents.emergency_number,
         }),
       ]);
 
@@ -257,7 +209,7 @@ function countNullValues(record: Record<string, any>) {
       Student with specified ID not found.<br /> click on dashboard icon
     </p>
   ) : (
-    <div className="p-6 w-full mx-auto py-5 h-screen">
+    <div className="p-6 max-w-[90%] mx-auto py-5 h-screen">
       <div className="flex justify-between items-center mb-4">
         <Link href="/students" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
           <ArrowLeft size={20} /> &nbsp; back to Students
@@ -274,19 +226,16 @@ function countNullValues(record: Record<string, any>) {
         {!updateLoading ? 'Update Student' : 'updating..'}
       </button>
 
-      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-6 justify-center md:justify-start w-[95%]">
-      {/* Basic Info */}
-      <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-      <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection1("basic")}>
+      <div className="flex flex-col gap-6 justify-center md:justify-between max-w-[700px]">
+        {/* Basic Info */}
+        <div className="bg-white w-full shadow-lg rounded-lg p-6">
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection("basic")}>
             <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
-              expandedSection1 === "basic" ? "text-black " : "text-gray-500"
-            }`}>Basic Information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
-                ${countNullValues(student) > 0 ? "text-red-600" : "text-green-600"}`}>
-                 {countNullValues(student) > 0 ? "Incomplete" : "Complete"}
-              </span></h2>
-            {expandedSection1 === "basic" ? <ChevronUp /> : <ChevronDown />}
+              expandedSection === "basic" ? "text-black " : "text-gray-500"
+            }`}>Basic Information</h2>
+            {expandedSection === "basic" ? <ChevronUp /> : <ChevronDown />}
           </div>
-          {expandedSection1 === "basic" && (
+          {expandedSection === "basic" && (
             <div className="mt-4 border border-gray-300 rounded-lg p-6">
               <label className="block text-green-800 font-medium mb-1">&nbsp;First name</label>
               <input type="text" placeholder="First name" className="w-full p-2 border border-gray-300 rounded mb-2" value={student?.first_name || ""} onChange={(e) => setStudent({ ...student, first_name: e.target.value })} />
@@ -320,17 +269,14 @@ function countNullValues(record: Record<string, any>) {
         </div>
 
         {/* Parent 1 Info */}
-        <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-        <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection2("parent1")}>
+        <div className="bg-white w-full shadow-lg rounded-lg p-6">
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection("parent1")}>
             <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
-              expandedSection2 === "parent1" ? "text-black " : "text-gray-500"
-            }`}>Parent 1 information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
-                ${countNullValues(fatherRecord) > 0 ? "text-red-600" : "text-green-600"}`}>
-                 {countNullValues(fatherRecord) > 0 ? "Incomplete" : "Complete"}
-              </span></h2>
-            {expandedSection2 === "parent1" ? <ChevronUp /> : <ChevronDown />}
+              expandedSection === "parent1" ? "text-black " : "text-gray-500"
+            }`}>Parent 1 information</h2>
+            {expandedSection === "parent1" ? <ChevronUp /> : <ChevronDown />}
           </div>
-          {expandedSection2 === "parent1" && (
+          {expandedSection === "parent1" && (
             <div className="mt-4 border border-gray-300 rounded-lg p-6">
               <label className="block text-green-800 font-medium mb-1">&nbsp;First name</label>
               <input type="text" placeholder="first name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.parent_one_first_name || ""} onChange={(e) => setParents({ ...parents, parent_one_first_name: String(e.target.value) })} />
@@ -343,8 +289,6 @@ function countNullValues(record: Record<string, any>) {
                 <option value="Married">Married</option>
                 <option value="Divorced">Divorced</option>
               </select>
-              <label className="block text-green-800 font-medium mb-1">&nbsp;phone number</label>
-              <input type="text" placeholder="contact number 1" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.phone_number1 || ""} onChange={(e) => setParents({ ...parents, phone_number1: String(e.target.value) })} />
               <label className="block text-green-800 font-medium mb-1">&nbsp;Nationality</label>
               <select className="w-full p-2 border border-gray-300 rounded mb-2"
                 value={parents?.parent_one_nationality || ""}
@@ -368,17 +312,14 @@ function countNullValues(record: Record<string, any>) {
         </div>
 
         {/* Parent 2 Info */}
-        <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-        <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection3("parent2")}>
+        <div className="bg-white w-full shadow-lg rounded-lg p-6">
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection("parent2")}>
             <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
-              expandedSection3 === "parent2" ? "text-black " : "text-gray-500"
-            }`}>Parent 2 information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
-                ${countNullValues(motherRecord) > 0 ? "text-red-600" : "text-green-600"}`}>
-                 {countNullValues(motherRecord) > 0 ? "Incomplete" : "Complete"}
-              </span></h2>
-            {expandedSection3 === "parent2" ? <ChevronUp /> : <ChevronDown />}
+              expandedSection === "parent2" ? "text-black " : "text-gray-500"
+            }`}>Parent 2 information</h2>
+            {expandedSection === "parent2" ? <ChevronUp /> : <ChevronDown />}
           </div>
-          {expandedSection3 === "parent2" && (
+          {expandedSection === "parent2" && (
             <div className="mt-4 border border-gray-300 rounded-lg p-6">
               <label className="block text-green-800 font-medium mb-1">&nbsp;First name</label>
               <input type="text" placeholder="first name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.parent_two_first_name || ""} onChange={(e) => setParents({ ...parents, parent_two_first_name: String(e.target.value) })} />
@@ -391,8 +332,6 @@ function countNullValues(record: Record<string, any>) {
                 <option value="Married">Married</option>
                 <option value="Divorced">Divorced</option>
               </select>
-              <label className="block text-green-800 font-medium mb-1">&nbsp;phone number</label>
-              <input type="text" placeholder="contact number 1" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.phone_number2 || ""} onChange={(e) => setParents({ ...parents, phone_number2: String(e.target.value) })} />
               <label className="block text-green-800 font-medium mb-1">&nbsp;Nationality</label>
               <select className="w-full p-2 border border-gray-300 rounded mb-2"
                 value={parents?.parent_two_nationality || ""}
@@ -417,17 +356,14 @@ function countNullValues(record: Record<string, any>) {
 
         {/* Additional Info */}
 
-        <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-        <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection4("additional")}>
+        <div className="bg-white w-full shadow-lg rounded-lg p-6">
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection("additional")}>
             <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
-              expandedSection4 === "additional" ? "text-black " : "text-gray-500"
-            }`}>additional information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
-                ${countNullValues(additional) > 0 ? "text-red-600" : "text-green-600"}`}>
-                 {countNullValues(additional) > 0 ? "Incomplete" : "Complete"}
-              </span></h2>
-            {expandedSection4 === "additional" ? <ChevronUp /> : <ChevronDown />}
+              expandedSection === "parent2" ? "text-black " : "text-gray-500"
+            }`}>Parent 2 information</h2>
+            {expandedSection === "additional" ? <ChevronUp /> : <ChevronDown />}
           </div>
-          {expandedSection4 === "additional" && (
+          {expandedSection === "parent2" && (
             <div className="mt-4 border border-gray-300 rounded-lg p-6">
           <label className="block text-green-800 font-medium mb-1">&nbsp;Address Line 1</label>
           <textarea placeholder="Address" className="w-full p-2 border h-35 py-3 border-gray-300 rounded mb-2" value={parents?.address || ""} onChange={(e) => setParents({ ...parents, address: e.target.value })} />
@@ -442,13 +378,10 @@ function countNullValues(record: Record<string, any>) {
         </option>
       ))}
           </select>
-          <h2 className="py-4 text-lg text-yellow-700">Emergency contact</h2>
-          <label className="block text-green-800 font-medium mb-1">&nbsp;First name</label>
-          <input type="text" placeholder="first name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.emergency_fname || ""} onChange={(e) => setParents({ ...parents, emergency_fname: String(e.target.value) })} />
-          <label className="block text-green-800 font-medium mb-1">&nbsp;Last name</label>
-          <input type="text" placeholder="last name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.emergency_lname || ""} onChange={(e) => setParents({ ...parents, emergency_lname: String(e.target.value) })} />
-          <label className="block text-green-800 font-medium mb-1">&nbsp;Contact number </label>
-          <input type="text" placeholder="contact number 2" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.emergency_number || ""} onChange={(e) => setParents({ ...parents, emergency_number: String(e.target.value) })} />
+          <label className="block text-green-800 font-medium mb-1">&nbsp;Contact number 1</label>
+          <input type="text" placeholder="contact number 1" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.phone_number1 || ""} onChange={(e) => setParents({ ...parents, phone_number1: String(e.target.value) })} />
+          <label className="block text-green-800 font-medium mb-1">&nbsp;Contact number 2</label>
+          <input type="text" placeholder="contact number 2" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.phone_number2 || ""} onChange={(e) => setParents({ ...parents, phone_number2: String(e.target.value) })} />
       </div>)}
         </div>
       </div>

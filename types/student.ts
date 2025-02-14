@@ -26,6 +26,9 @@ export interface Student {
     address_country: string;
     phone_number1: string;
     phone_number2: string;
+    emergency_fname: string,
+    emergency_lname: string,
+    emergency_number: string,
 
   }
   

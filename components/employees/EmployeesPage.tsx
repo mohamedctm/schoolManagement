@@ -100,7 +100,7 @@ export default function EmployeesPage() {
           Add Employee
         </Link>
       </div>
-      <div className="bg-white shadow rounded-lg p-4 h-[80vh] overflow-auto flex flex-col gap-4">
+      <div id="employees" className="bg-white shadow rounded-lg p-4 py-8 lex-grow (flex-1) overflow-auto flex flex-col gap-4">
         {loading ? (
           <p className="text-center text-gray-500">Loading...</p>
         ) : filteredEmployees.length === 0 ? (
@@ -109,10 +109,10 @@ export default function EmployeesPage() {
           filteredEmployees.map((employee) => (
             <div
               key={employee.id}
-              className="border border-gray-300 p-4 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+              className="border border-gray-300 p-4 py-6 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-2"
             >
               <div className="flex flex-col md:flex-row md:items-center gap-4">
-                <h2 className="text-lg font-semibold">
+                <h2 className="text-lg font-normal">
                   {employee.name} {employee.last_name}
                 </h2>
                 <p className="text-gray-600">&#40; {employee.position} &#41;</p>
