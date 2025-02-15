@@ -12,6 +12,7 @@
     "@supabase/supabase-js": "^2.48.1",
     "@tailwindcss/postcss": "^4.0.3",
     "@types/formidable": "^3.4.5",
+    "@vercel/blob": "^0.27.1",
     "amqplib": "^0.10.5",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",

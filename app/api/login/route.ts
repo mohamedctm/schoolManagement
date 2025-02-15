@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     // ✅ Set HttpOnly Cookie securely
     const cookie = serialize('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV !== 'development', // Secure in production
+      secure: process.env.NODE_ENV !== 'production', // Secure in production
       sameSite: 'strict',
       path: '/',
       maxAge: 3600, // 1 hour
