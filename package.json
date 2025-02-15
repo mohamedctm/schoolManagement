@@ -53,6 +53,9 @@
     "type": "git",
     "url": "sole"
   },
+  "resolutions": {
+  "glob": "^10.0.0"
+},
   "keywords": [
     "school",
     "management"
