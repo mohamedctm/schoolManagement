@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Heading from "@/components/Heading";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 export default function AddEmployeePage() {
   const [form, setForm] = useState({
@@ -15,14 +15,27 @@ export default function AddEmployeePage() {
     last_name: "",
   });
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false); // ✅ Track form submission
+  const [loadingLink, setLoadingLink] = useState<string | null>(null); // ✅ Track link clicks
   const router = useRouter();
 
+  useEffect(() => {
+    let isMounted = true; // ✅ Prevent memory leaks
+
+    return () => {
+      isMounted = false; // ✅ Cleanup effect on unmount
+    };
+  }, []);
+
+  // ✅ Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(""); // Clear previous messages
+    if (loading) return; // Prevent multiple submissions
+    setMessage("");
+    setLoading(true);
 
     try {
-      // Insert employee data
+      // ✅ Insert employee data
       const { data, error } = await supabase
         .from("employees")
         .insert([{ ...form }])
@@ -32,13 +45,17 @@ export default function AddEmployeePage() {
       if (error || !data) {
         console.error("Error adding employee:", error);
         setMessage("Error adding employee. Please try again.");
+        setLoading(false);
         return;
       }
 
       const employeeId = data?.id;
-      if (!employeeId) return; // Ensure employee ID exists before proceeding
+      if (!employeeId) {
+        setLoading(false);
+        return;
+      } // Ensure employee ID exists before proceeding
 
-      // Insert into salary table
+      // ✅ Insert into salary table
       const { error: salaryError } = await supabase
         .from("salary")
         .insert([{ id: employeeId, salary: 0 }]);
@@ -46,10 +63,11 @@ export default function AddEmployeePage() {
       if (salaryError) {
         console.error("Error adding salary record:", salaryError);
         setMessage("Employee added, but salary record failed.");
+        setLoading(false);
         return;
       }
 
-      // Insert into employee_info table
+      // ✅ Insert into employee_info table
       const { error: infoError } = await supabase
         .from("employee_info")
         .insert([{ id: employeeId, address: "", phone_number: "" }]);
@@ -57,25 +75,41 @@ export default function AddEmployeePage() {
       if (infoError) {
         console.error("Error adding employee info record:", infoError);
         setMessage("Employee added, but employee info record failed.");
+        setLoading(false);
         return;
       }
 
-      // Success Message
+      // ✅ Success Message
       setMessage(`Employee ${form.name} has been created successfully!`);
       setForm({ name: "", email: "", position: "", last_name: "" });
 
     } catch (error) {
       console.error("Unexpected error:", error);
       setMessage("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // ✅ Handle Navigation with Loading State
+  const handleNavigation = (path: string) => {
+    setLoadingLink(path);
+    router.push(path);
   };
 
   return (
     <div className="p-6 max-w-lg mx-auto h-screen">
       <div className="flex justify-between items-center mb-4">
-        <Link href="/employees" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
-          <ArrowLeft size={20} /> &nbsp; Back to Employees
-        </Link>
+        <button
+          onClick={() => handleNavigation("/employees")}
+          disabled={loadingLink !== null}
+          className={`flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900 ${
+            loadingLink === "/employees" ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {loadingLink === "/employees" ? <Loader2 className="animate-spin" size={20} /> : <ArrowLeft size={20} />}
+          &nbsp; Back to Employees
+        </button>
       </div>
 
       <div className="flex justify-between items-center mb-4">
@@ -88,23 +122,27 @@ export default function AddEmployeePage() {
           className="w-full p-4 border border-gray-300 rounded mb-2" 
           value={form.name} 
           onChange={(e) => setForm({ ...form, name: e.target.value })} required 
+          disabled={loading}
         />
         <input 
           type="text" placeholder="Last Name" 
           className="w-full p-4 border border-gray-300 rounded mb-2" 
           value={form.last_name} 
           onChange={(e) => setForm({ ...form, last_name: e.target.value })} required 
+          disabled={loading}
         />
         <input 
           type="email" placeholder="Email" 
           className="w-full p-4 border border-gray-300 rounded mb-2" 
           value={form.email} 
           onChange={(e) => setForm({ ...form, email: e.target.value })} required 
+          disabled={loading}
         />
         <select 
           className="w-full p-4 border border-gray-300 rounded mb-2" 
           value={form.position} 
           onChange={(e) => setForm({ ...form, position: e.target.value })} required
+          disabled={loading}
         >
           <option value="" disabled>Select Position</option>
           <option value="Director General">Director General</option>
@@ -124,8 +162,14 @@ export default function AddEmployeePage() {
           <option value="Accountant">Accountant</option>
         </select>
         
-        <button type="submit" className="w-full text-lg bg-green-200 text-green-900 px-4 py-2 rounded hover:bg-green-600 hover:text-white">
-          Create Employee
+        <button 
+          type="submit" 
+          className={`w-full flex justify-center items-center gap-2 bg-green-200 text-lg text-green-900 px-4 py-2 rounded hover:bg-green-600 hover:text-white transition ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={loading}
+        >
+          {loading ? <Loader2 className="animate-spin" size={20} /> : "Create Employee"}
         </button>
       </form>
 

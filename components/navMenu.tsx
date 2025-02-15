@@ -1,11 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, LogOut } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LayoutDashboard, LogOut, Loader2 } from "lucide-react";
 
 export default function NavMenu() {
   const pathname = usePathname() || ""; // Ensure it's always a string
+  const router = useRouter();
+  const [loadingLink, setLoadingLink] = useState<string | null>(null); // ✅ Track link clicks
+  const [loadingLogout, setLoadingLogout] = useState(false); // ✅ Track logout clicks
 
   const isPageWithNav = (path: string) => {
     return (
@@ -18,28 +22,52 @@ export default function NavMenu() {
 
   if (!isPageWithNav(pathname)) return null; // ✅ Hide on other pages
 
-  const handleLogout = () => {
-    // Example logout logic (modify as needed)
-    fetch("/api/logout", { method: "POST", credentials: "include" }).then(() => {
-      window.location.href = "/";
-    });
+  // ✅ Handle Navigation with Loading State
+  const handleNavigation = (path: string) => {
+    if (loadingLink) return; // Prevent multiple clicks
+    setLoadingLink(path);
+    router.push(path);
+  };
+
+  // ✅ Handle Logout with Loading State
+  const handleLogout = async () => {
+    if (loadingLogout) return; // Prevent multiple clicks
+    setLoadingLogout(true);
+
+    try {
+      await fetch("/api/logout", { method: "POST", credentials: "include" });
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setLoadingLogout(false);
+    }
   };
 
   return (
     <nav className="bg-white text-gray-700 gap-2 p-5 flex justify-between border-b border-gray-300">
-      <Link
-        href="/dashboard"
+      {/* Dashboard Link */}
+      <button
+        onClick={() => handleNavigation("/dashboard")}
+        disabled={loadingLink !== null}
         className={`mr-4 flex items-center gap-2 ${
           pathname === "/dashboard" ? "text-purple-800" : ""
-        }`}
+        } ${loadingLink === "/dashboard" ? "opacity-50 cursor-not-allowed" : ""}`}
       >
-        <LayoutDashboard size={20} /> Dashboard
-      </Link>
+        {loadingLink === "/dashboard" ? <Loader2 className="animate-spin" size={20} /> : <LayoutDashboard size={20} />}
+        Dashboard
+      </button>
+
+      {/* Logout Button */}
       <button
         onClick={handleLogout}
-        className="flex items-center gap-2 bg-gray-100 text-gray-400 px-4 py-2 rounded hover:bg-red-500 hover:text-white"
+        disabled={loadingLogout}
+        className={`flex items-center gap-2 bg-gray-100 text-gray-400 px-4 py-2 rounded hover:bg-red-500 hover:text-white ${
+          loadingLogout ? "opacity-50 cursor-not-allowed" : ""
+        }`}
       >
-        <LogOut size={20} /> Logout
+        {loadingLogout ? <Loader2 className="animate-spin" size={20} /> : <LogOut size={20} />}
+        Logout
       </button>
     </nav>
   );
