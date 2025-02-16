@@ -54,7 +54,7 @@ export default function NavMenu() {
           pathname === "/dashboard" ? "text-purple-800" : ""
         } ${loadingLink === "/dashboard" ? "opacity-50 cursor-not-allowed" : ""}`}
       >
-        {loadingLink === "/dashboard" ? <Loader2 className="animate-spin" size={20} /> : <LayoutDashboard size={20} />}
+        {pathname !== "/dashboard" && loadingLink === "/dashboard" ? <Loader2 className="animate-spin" size={20} /> : <LayoutDashboard size={20} />}
         Dashboard
       </button>
 
