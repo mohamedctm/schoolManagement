@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! // Ensure this key is correctly set in `.env.local`
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 export async function POST(request: Request) {
@@ -16,28 +16,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'No file or fileName provided' }, { status: 400 });
     }
 
-    // ✅ Convert file to Buffer
+    console.log("File size:", file.size);
+    console.log("File type:", file.type);
+
     const fileBuffer = Buffer.from(await file.arrayBuffer());
-
-    // ✅ Ensure unique file name
     const uniqueFileName = `contract_${Date.now()}_${fileName}`;
-    const filePath = `contracts/${uniqueFileName}`; // Store inside "contracts" folder
+    const filePath = `contracts/${uniqueFileName}`;
 
-    // ✅ Upload file to Supabase Storage
     const { data, error } = await supabase.storage
-      .from("contracts") // 🔹 Use your actual Supabase bucket name
+      .from("contracts")
       .upload(filePath, fileBuffer, { upsert: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase upload error:", error);
+      throw error;
+    }
 
-    // ✅ Generate public URL
     const { data: publicUrlData } = supabase.storage
-      .from("contracts") // 🔹 Use the same bucket name
+      .from("contracts")
       .getPublicUrl(filePath);
 
     return NextResponse.json({
       message: "File uploaded successfully",
-      url: publicUrlData.publicUrl, // ✅ Return public download URL
+      url: publicUrlData.publicUrl,
     });
   } catch (error) {
     console.error("Error uploading file:", error);

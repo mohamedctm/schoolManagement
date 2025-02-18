@@ -49,7 +49,6 @@ export default function NavMenu() {
       {/* Dashboard Link */}
       <button
         onClick={() => handleNavigation("/dashboard")}
-        disabled={loadingLink !== null}
         className={`mr-4 flex items-center gap-2 ${
           pathname === "/dashboard" ? "text-purple-800" : ""
         } ${loadingLink === "/dashboard" ? "opacity-50 cursor-not-allowed" : ""}`}
