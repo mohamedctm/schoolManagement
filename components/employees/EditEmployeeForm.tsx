@@ -117,7 +117,7 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
     // Handle File Upload
     if (contractFile) {
       const fileExtension = contractFile.name.split(".").pop();
-      if (!["jpg", "png"].includes(fileExtension || "")) {
+      if (!["image/jpeg", "image/png"].includes(contractFile.type)) {
         setMessage("Only JPG and PNG formats are allowed.");
         return;
       }
