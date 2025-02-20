@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { Student, Parents } from "@/types/student";
+import { Student, Parents, Medical } from "@/types/student";
 import Heading from "@/components/Heading";
 import { ArrowLeft, Plus, Upload, ChevronDown, ChevronUp } from "lucide-react";
 import countries from "world-countries";
@@ -22,6 +22,16 @@ const initialStudentState: Student = {
   gender: "",
   enrollment_status: false,
 };
+
+const initialMedicalState: Medical = {
+    id: 0,
+    has_health_issues: false,
+    has_chronic_diseases: false,
+    chronic_diseases: "",
+    has_allergies: false,
+    allergies: "",
+    medication: ""
+  };
 
 const initialParentsState: Parents = {
   id: 0, // Matches student ID
@@ -42,6 +52,7 @@ const initialParentsState: Parents = {
   emergency_fname: "",
   emergency_lname: "",
   emergency_number: "",
+  relation: "",
 };
 
 export default function EditStudentForm({ id }: EditStudentFormProps) {
@@ -53,10 +64,12 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [student, setStudent] = useState<Student>(initialStudentState);
   const [parents, setParents] = useState<Parents>(initialParentsState);
+  const [medical, setMedical] = useState<Medical>(initialMedicalState);
   const [expandedSection1, setExpandedSection1] = useState<string | null>("basic"); // Set "basic" as default expanded section
   const [expandedSection2, setExpandedSection2] = useState<string | null>("parent1"); // Set "basic" as default expanded section
   const [expandedSection3, setExpandedSection3] = useState<string | null>("parent2"); // Set "basic" as default expanded section
   const [expandedSection4, setExpandedSection4] = useState<string | null>("additional"); // Set "basic" as default expanded section
+  const [expandedSection5, setExpandedSection5] = useState<string | null>("medical"); // Set "basic" as default expanded section
 
   const toggleSection1 = (section: string) => {
     setExpandedSection1(expandedSection1 === section ? null : section);
@@ -69,6 +82,9 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
   };
   const toggleSection4 = (section: string) => {
     setExpandedSection4(expandedSection4 === section ? null : section);
+  };
+    const toggleSection5 = (section: string) => {
+    setExpandedSection4(expandedSection5 === section ? null : section);
   };
 
   useEffect(() => {
@@ -103,15 +119,17 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
           return data;
         };
 
-        const [stuData, parData] = await Promise.all([
+        const [stuData, parData,medData] = await Promise.all([
           fetchTableData("students"),
           fetchTableData("parents"),
+          fetchTableData("medical"),
         ]);
 
         setStudent(stuData);
         setParents(parData);
+        setMedical(medData);
       } catch (error) {
-        console.error("Error fetching student data:", error);
+        console.log("Error fetching student data:", error);
         setMessage("Failed to fetch student info data.");
       } finally {
         setLoading(false);
@@ -148,7 +166,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
       setMessage("Student status changed successfully!");
       setStudent({ ...student, enrollment_status: newStatus });
     } catch (error) {
-      console.error("Error changing status:", error);
+      console.log("Error changing status:", error);
       setMessage("Failed to change student status.");
     }
   };
@@ -157,6 +175,23 @@ function countNullValues(record: Record<string, any>) {
     return Object.values(record).filter((value) => value === null || value === "").length;
   }
   
+  const CHRONIC_DISEASES_LIST = [
+    "Asthma",
+    "Diabetes",
+    "Hypertension",
+    "Heart Disease",
+    "Epilepsy",
+    "Chronic Kidney Disease",
+    "Chronic Liver Disease",
+    "Chronic Obstructive Pulmonary Disease (COPD)",
+    "Sickle Cell Disease",
+    "Arthritis",
+    "Cancer",
+    "HIV/AIDS",
+    "Cystic Fibrosis",
+    "Multiple Sclerosis",
+    "Lupus",
+  ];
   //mother
   const fatherRecord = {
 
@@ -181,6 +216,7 @@ function countNullValues(record: Record<string, any>) {
         emergency_fname: parents.emergency_fname,
         emergency_lname: parents.emergency_lname,
         emergency_number: parents.emergency_number,
+        relation: parents.relation,
         }
 // 
   const handleDeleteStudent = async (id: number) => {
@@ -189,6 +225,8 @@ function countNullValues(record: Record<string, any>) {
     try {
       const { error: parentError } = await supabase.from("parents").delete().eq("id", id);
       if (parentError) throw parentError;
+        const { error: medicalError } = await supabase.from("medical").delete().eq("id", id);
+      if (medicalError) throw medicalError;
 
       const { error: studentError } = await supabase.from("students").delete().eq("id", id);
       if (studentError) throw studentError;
@@ -196,7 +234,7 @@ function countNullValues(record: Record<string, any>) {
       // Redirect to students page after successful deletion
       router.push("/students");
     } catch (error) {
-      console.error("Error deleting student:", error);
+      console.log("Error deleting student:", error);
     }
   };
 
@@ -239,13 +277,23 @@ function countNullValues(record: Record<string, any>) {
           emergency_fname: parents.emergency_fname,
         emergency_lname: parents.emergency_lname,
         emergency_number: parents.emergency_number,
+        relation: parents.relation,
+
         }),
+        updateTable("medical", {
+            has_health_issues: medical.has_health_issues,
+            has_chronic_diseases: medical.has_chronic_diseases,
+            chronic_diseases: medical.chronic_diseases,
+            has_allergies: medical.has_allergies,
+            allergies: medical.allergies,
+            medication: medical.medication,
+          }),
       ]);
 
       setMessage("Student details updated successfully!");
       setUpdateLoading(false);
     } catch (error) {
-      console.error("Error updating student data:", error);
+      console.log("Error updating student data:", error);
       setMessage("Failed to update student details.");
       setUpdateLoading(false);
     }
@@ -414,7 +462,90 @@ function countNullValues(record: Record<string, any>) {
             </div>
           )}
         </div>
+ {/* medical Info */}
+ <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
+      <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection5("medical")}>
+            <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
+              expandedSection5 === "medical" ? "text-black " : "text-gray-500"
+            }`}>Health Information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
+                ${countNullValues(medical) > 0 ? "text-red-600" : "text-green-600"}`}>
+                 {countNullValues(medical) > 0 ? "Incomplete" : "Complete"}
+              </span></h2>
+            {expandedSection5 === "medical" ? <ChevronUp /> : <ChevronDown />}
+          </div>
+          {expandedSection5 === "medical" && (
+            <div className="mt-4 border border-gray-300 rounded-lg p-6">
+               {/* Health Issues Checkbox */}
+        <label className="flex items-center py-6 gap-2">
+          <input
+            type="checkbox"
+            name="has_health_issues"
+            checked={medical.has_health_issues}
+            onChange={(e) => setMedical({ ...medical, has_health_issues: e.target.checked })} 
+            className="h-5 w-5 py-6"
+          />
+          Has Health Issues
+        </label>
 
+        {/* Chronic Diseases */}
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="has_chronic_diseases"
+            checked={medical.has_chronic_diseases}
+            onChange={(e) => setMedical({ ...medical, has_chronic_diseases: e.target.checked })} 
+            className="h-8 w-5 py-6"
+          />
+          Has Chronic Diseases
+        </label>
+        {medical.has_chronic_diseases && (
+          <select className="w-full p-2 border border-gray-300 rounded mb-2" value={medical?.chronic_diseases || ""} onChange={(e) => setMedical({ ...medical, chronic_diseases: e.target.value })} >
+          <option value="" disabled>select from the list</option>
+          {CHRONIC_DISEASES_LIST.map((disease) => (
+              <option key={disease} value={disease}>
+                {disease}
+              </option>
+            ))}
+
+        </select>
+        )}
+
+        {/* Allergies */}
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="has_allergies"
+            checked={medical.has_allergies}
+            onChange={(e) => setMedical({ ...medical, has_allergies: e.target.checked })} 
+            className="h-8 w-5 py-6"
+          />
+          Has Allergies
+        </label>
+        {medical.has_allergies && (
+          <textarea
+            name="allergies"
+            placeholder="List allergies"
+            value={medical?.allergies || ""}
+            onChange={(e) => setMedical({ ...medical, allergies: e.target.value })} 
+            className="w-full p-2 border border-gray-300 py-6 mb-2 rounded"
+            required
+          />
+        )}
+
+        {/* Medication */}
+        <label className="block">
+          <span className="font-medium">Medication</span>
+          <textarea
+            name="medication"
+            placeholder="List any medications"
+            value={medical?.medication || ""}
+            onChange={(e) => setMedical({ ...medical, medication: e.target.value })} 
+            className="w-full p-2 border border-gray-300 py-2 mb-2 rounded"
+          />
+        </label>
+            </div>
+          )}
+        </div>
         {/* Additional Info */}
 
         <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
@@ -447,8 +578,10 @@ function countNullValues(record: Record<string, any>) {
           <input type="text" placeholder="first name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.emergency_fname || ""} onChange={(e) => setParents({ ...parents, emergency_fname: String(e.target.value) })} />
           <label className="block text-green-800 font-medium mb-1">&nbsp;Last name</label>
           <input type="text" placeholder="last name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.emergency_lname || ""} onChange={(e) => setParents({ ...parents, emergency_lname: String(e.target.value) })} />
-          <label className="block text-green-800 font-medium mb-1">&nbsp;Contact number </label>
-          <input type="text" placeholder="contact number 2" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.emergency_number || ""} onChange={(e) => setParents({ ...parents, emergency_number: String(e.target.value) })} />
+          <label className="block text-green-800 font-medium mb-1">&nbsp;Relation to student</label>
+          <input type="text" placeholder="relation" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.relation || ""} onChange={(e) => setParents({ ...parents, relation: String(e.target.value) })} />
+         <label className="block text-green-800 font-medium mb-1">&nbsp;Contact number </label>
+          <input type="text" placeholder="Emergency contact number " className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.emergency_number || ""} onChange={(e) => setParents({ ...parents, emergency_number: String(e.target.value) })} />
       </div>)}
         </div>
       </div>

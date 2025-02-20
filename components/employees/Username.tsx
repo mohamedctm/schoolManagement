@@ -36,7 +36,7 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
         if (empError) throw empError;
         setEmployee(empData);
       } catch (error) {
-        console.error("Error fetching employee data:", error);
+        console.log("Error fetching employee data:", error);
         setMessage("Failed to fetch employee info data.");
       } finally {
         setLoading(false);
@@ -56,7 +56,7 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
       }).eq("id", id);
       setMessage("Username and password updated successfully!");
     } catch (error) {
-      console.error("Error updating username and password:", error);
+      console.log("Error updating username and password:", error);
       setMessage("Failed to update username and password.");
     }
   };

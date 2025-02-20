@@ -1,22 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import Link from "next/link";
+import Heading from "@/components/Heading";
 import { Student } from "@/types/student";
-import { ArrowLeft, Plus, Search, Loader2 } from "lucide-react";
+import {Pagination} from "@/components/paging";
+
+import { ArrowLeft, Plus, Search, Loader2} from "lucide-react";
+import Modal from "@/components/Modal";
+import AddStudentPage from "@/components/students/AddStudentForm";
+
 
 export default function StudentPage() {
+
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loadingLink, setLoadingLink] = useState<string | null>(null); // ✅ Track clicked link
+  const [loadingLink, setLoadingLink] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const studentsPerPage = 10;
   const router = useRouter();
 
   useEffect(() => {
-    let isMounted = true; // ✅ Prevents setting state on unmount
+    let isMounted = true;
 
     const checkAuth = async () => {
       try {
@@ -33,24 +41,26 @@ export default function StudentPage() {
           fetchStudents();
         }
       } catch (error) {
-        console.error("Auth check failed:", error);
+        console.log("Auth check failed:", error);
       }
     };
 
     checkAuth();
 
     return () => {
-      isMounted = false; // ✅ Cleanup on unmount
+      isMounted = false;
     };
   }, [router]);
 
-  // ✅ Fetch Students Initially with Cleanup
   const fetchStudents = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("students").select("*");
+    const { data, error } = await supabase
+      .from("students")
+      .select("*")
+      .order("first_name", { ascending: true });
 
     if (error) {
-      console.error("Error fetching students:", error);
+      console.log("Error fetching students:", error);
     } else {
       setStudents(data);
       setFilteredStudents(data);
@@ -58,7 +68,6 @@ export default function StudentPage() {
     setLoading(false);
   };
 
-  // ✅ Real-Time Sync: Listen for Insert, Update, Delete Changes
   useEffect(() => {
     let isMounted = true;
 
@@ -75,11 +84,10 @@ export default function StudentPage() {
 
     return () => {
       isMounted = false;
-      supabase.removeChannel(subscription); // ✅ Cleanup on unmount
+      supabase.removeChannel(subscription);
     };
   }, []);
 
-  // ✅ Handle Search Input Change
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (query === "") {
@@ -92,19 +100,32 @@ export default function StudentPage() {
       );
       setFilteredStudents(filtered);
     }
+    setCurrentPage(1);
   };
 
-  // ✅ Handle Link Click with Loading
-  const handleNavigation = (path: string) => {
-    setLoadingLink(path);
-    router.push(path);
-  };
+  const indexOfLastStudent = currentPage * studentsPerPage;
+  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
+  const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
+  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
+
+  const handlePageChange = useCallback(
+    (pageNumber: number) => {
+      if (pageNumber < 1 || pageNumber > totalPages) return;
+      setCurrentPage(pageNumber);
+    },
+    [totalPages]
+  );
+  const [modal, setModal] = useState<string | null>(null);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto h-screen">
+
+    <div className="p-6 max-w-4xl mx-auto">
+      {modal === "category" && <Modal isOpen onClose={() => setModal(null)}><AddStudentPage  /></Modal>}
+
       <div className="flex justify-between items-center mb-4">
+      
         <button
-          onClick={() => handleNavigation("/dashboard")}
+          onClick={() => router.push("/dashboard")}
           disabled={loadingLink !== null}
           className={`flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900 ${
             loadingLink === "/dashboard" ? "opacity-50 cursor-not-allowed" : ""
@@ -114,11 +135,12 @@ export default function StudentPage() {
           &nbsp;Dashboard
         </button>
       </div>
+
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-semibold">Students</h1>
+        <Heading>Students</Heading>
       </div>
+
       <div className="flex justify-between items-center mb-4">
-        {/* Search Bar */}
         <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2 w-1/2">
           <Search size={20} className="text-gray-500" />
           <input
@@ -129,26 +151,28 @@ export default function StudentPage() {
             onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
+      </div>
+      <div className="flex justify-between items-center mb-4">
+      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
 
-        {/* Add Student Button */}
         <button
-          onClick={() => handleNavigation("/students/add")}
-          disabled={loadingLink !== null}
-          className={`flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded ${
-            loadingLink === "/students/add" ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          // onClick={() => router.push("/students/add")}
+          onClick={() => setModal("category")}
+          className="flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded"
         >
-          {loadingLink === "/students/add" ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
+          <Plus size={20} />
           Add Student
         </button>
       </div>
-      <div id="students" className="bg-white shadow rounded-lg p-4 py-8 flex-grow overflow-auto flex flex-col gap-4">
+
+
+      <div className="bg-white shadow rounded-lg p-4 py-8 flex-grow overflow-auto flex flex-col gap-4">
         {loading ? (
           <p className="text-center text-gray-500">Loading...</p>
-        ) : filteredStudents.length === 0 ? (
+        ) : currentStudents.length === 0 ? (
           <p className="text-center text-gray-500">No students found.</p>
         ) : (
-          filteredStudents.map((student) => (
+          currentStudents.map((student) => (
             <div
               key={student.id}
               className="border border-gray-300 p-4 py-6 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-2"
@@ -159,26 +183,29 @@ export default function StudentPage() {
                 </h2>
               </div>
               <div className="flex gap-2 mt-2 md:mt-0">
-                <button
-                  onClick={() => handleNavigation(`/students/edit/${student.id}`)}
-                  disabled={loadingLink !== null} // ✅ Prevent multiple clicks
-                  className={`flex items-center justify-center gap-2 bg-green-200 text-green-800 px-3 py-1 rounded hover:bg-green-700 hover:text-white ${
-                    loadingLink === `/students/edit/${student.id}` ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+              <button
+                  onClick={() => router.push(`/students/assign/${student.id}`)}
+                  className="flex items-center justify-center gap-2 bg-blue-200 text-blue-900 px-3 py-1 rounded hover:bg-blue-700 hover:text-white"
                 >
-                  {loadingLink === `/students/edit/${student.id}` ? (
-                    <>
-                      <Loader2 className="animate-spin" size={18} /> Loading...
-                    </>
-                  ) : (
-                    "Manage"
-                  )}
+                  Assign
+                </button>
+                <button
+                  onClick={() => router.push(`/students/edit/${student.id}`)}
+                  className="flex items-center justify-center gap-2 bg-green-200 text-green-900 px-3 py-1 rounded hover:bg-green-700 hover:text-white"
+                >
+                  Manage
                 </button>
               </div>
             </div>
           ))
         )}
       </div>
+
+      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+      <p className="py-12">&nbsp;</p>
+
     </div>
+
   );
 }
+

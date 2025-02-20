@@ -1,21 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Employee } from "@/types/employee";
+import Heading from "@/components/Heading";
+import {Pagination} from "@/components/paging";
 import { ArrowLeft, Plus, Search, Loader2 } from "lucide-react";
+import AddStudentPage from "../students/AddStudentForm";
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loadingLink, setLoadingLink] = useState<string | null>(null); // ✅ Track clicked link
+  const [loadingLink, setLoadingLink] = useState<string | null>(null); // Track clicked link
+  const [currentPage, setCurrentPage] = useState(1);
+  const employeesPerPage = 10;
   const router = useRouter();
 
   useEffect(() => {
-    let isMounted = true; // ✅ Prevents setting state on unmount
+    let isMounted = true;
 
     const checkAuth = async () => {
       try {
@@ -32,24 +37,26 @@ export default function EmployeesPage() {
           fetchEmployees();
         }
       } catch (error) {
-        console.error("Auth check failed:", error);
+        console.log("Auth check failed:", error);
       }
     };
 
     checkAuth();
 
     return () => {
-      isMounted = false; // ✅ Cleanup on unmount
+      isMounted = false;
     };
   }, [router]);
 
-  // ✅ Fetch Employees Initially with Cleanup
   const fetchEmployees = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("employees").select("*");
+    const { data, error } = await supabase
+      .from("employees")
+      .select("*")
+      .order("name", { ascending: true });
 
     if (error) {
-      console.error("Error fetching employees:", error);
+      console.log("Error fetching employees:", error);
     } else {
       setEmployees(data);
       setFilteredEmployees(data);
@@ -57,7 +64,6 @@ export default function EmployeesPage() {
     setLoading(false);
   };
 
-  // ✅ Real-Time Sync: Listen for Insert, Update, Delete Changes
   useEffect(() => {
     let isMounted = true;
 
@@ -74,11 +80,10 @@ export default function EmployeesPage() {
 
     return () => {
       isMounted = false;
-      supabase.removeChannel(subscription); // ✅ Cleanup on unmount
+      supabase.removeChannel(subscription);
     };
   }, []);
 
-  // ✅ Handle Search Input Change
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (query === "") {
@@ -91,19 +96,30 @@ export default function EmployeesPage() {
       );
       setFilteredEmployees(filtered);
     }
+    setCurrentPage(1);
   };
 
-  // ✅ Handle Navigation with Loading State
-  const handleNavigation = (path: string) => {
-    setLoadingLink(path);
-    router.push(path);
-  };
+  const indexOfLastEmployee = currentPage * employeesPerPage;
+  const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
+  const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
+  const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
+
+  const handlePageChange = useCallback(
+    (pageNumber: number) => {
+      if (pageNumber < 1 || pageNumber > totalPages) return;
+      setCurrentPage(pageNumber);
+    },
+    [totalPages]
+  );
 
   return (
     <div className="p-6 max-w-4xl mx-auto h-screen">
       <div className="flex justify-between items-center mb-4">
         <button
-          onClick={() => handleNavigation("/dashboard")}
+          onClick={() => {
+            setLoadingLink("/dashboard");
+            router.push("/dashboard");
+          }}
           disabled={loadingLink !== null}
           className={`flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900 ${
             loadingLink === "/dashboard" ? "opacity-50 cursor-not-allowed" : ""
@@ -113,11 +129,12 @@ export default function EmployeesPage() {
           &nbsp;Dashboard
         </button>
       </div>
+
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-semibold">Employees</h1>
+        <Heading>Employees</Heading>
       </div>
+
       <div className="flex justify-between items-center mb-4">
-        {/* Search Bar */}
         <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2 w-1/2">
           <Search size={20} className="text-gray-500" />
           <input
@@ -128,10 +145,16 @@ export default function EmployeesPage() {
             onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
+      </div>
 
-        {/* Add Employee Button */}
+      <div className="flex justify-between items-center mb-4">
+        {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+
         <button
-          onClick={() => handleNavigation("/employees/add")}
+          onClick={() => {
+            setLoadingLink("/employees/add");
+            router.push("/employees/add");
+          }}
           disabled={loadingLink !== null}
           className={`flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded ${
             loadingLink === "/employees/add" ? "opacity-50 cursor-not-allowed" : ""
@@ -141,13 +164,14 @@ export default function EmployeesPage() {
           Add Employee
         </button>
       </div>
-      <div id="employees" className="bg-white shadow rounded-lg p-4 py-8 flex-grow overflow-auto flex flex-col gap-4">
+
+      <div className="bg-white shadow rounded-lg p-4 py-8 flex-grow overflow-auto flex flex-col gap-4">
         {loading ? (
           <p className="text-center text-gray-500">Loading...</p>
-        ) : filteredEmployees.length === 0 ? (
+        ) : currentEmployees.length === 0 ? (
           <p className="text-center text-gray-500">No employees found.</p>
         ) : (
-          filteredEmployees.map((employee) => (
+          currentEmployees.map((employee) => (
             <div
               key={employee.id}
               className="border border-gray-300 p-4 py-6 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-2"
@@ -160,25 +184,26 @@ export default function EmployeesPage() {
               </div>
               <div className="flex gap-2 mt-2 md:mt-0">
                 <button
-                  onClick={() => handleNavigation(`/employees/edit/${employee.id}`)}
-                  disabled={loadingLink !== null} // ✅ Prevent multiple clicks
+                  onClick={() => {
+                    setLoadingLink(`/employees/edit/${employee.id}`);
+                    router.push(`/employees/edit/${employee.id}`);
+                  }}
+                  disabled={loadingLink !== null}
                   className={`flex items-center justify-center gap-2 bg-green-200 text-green-800 px-3 py-1 rounded hover:bg-green-700 hover:text-white ${
                     loadingLink === `/employees/edit/${employee.id}` ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
-                  {loadingLink === `/employees/edit/${employee.id}` ? (
-                    <>
-                      <Loader2 className="animate-spin" size={18} /> Loading...
-                    </>
-                  ) : (
-                    "Manage"
-                  )}
+                  {loadingLink === `/employees/edit/${employee.id}` ? <Loader2 className="animate-spin" size={20} /> : "Manage"}
                 </button>
               </div>
             </div>
           ))
         )}
       </div>
+
+      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+      <p className="py-6">&nbsp;</p>
     </div>
   );
 }
+

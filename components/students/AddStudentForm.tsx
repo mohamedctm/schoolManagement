@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import Link from "next/link";
+// import Link from "next/link";
 import Heading from "@/components/Heading";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
@@ -17,8 +17,8 @@ export default function AddStudentPage() {
   });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false); // ✅ Track loading state
-  const [loadingLink, setLoadingLink] = useState<string | null>(null); // ✅ Track link clicks
-  const router = useRouter();
+  // const [loadingLink, setLoadingLink] = useState<string | null>(null); // ✅ Track link clicks
+  // const router = useRouter();
 
   useEffect(() => {
     let isMounted = true; // ✅ Prevent memory leaks
@@ -44,7 +44,7 @@ export default function AddStudentPage() {
         .single();
 
       if (error || !data) {
-        console.error("Error adding student:", error);
+        console.log("Error adding student:", error);
         setMessage("Error adding student. Please try again.");
         setLoading(false);
         return;
@@ -62,18 +62,28 @@ export default function AddStudentPage() {
         .insert([{ id: studentId }]);
 
       if (parentError) {
-        console.error("Error adding parent record:", parentError);
+        console.log("Error adding parent record:", parentError);
         setMessage("Student added, but parent record failed.");
         setLoading(false);
         return;
       }
+      const { error: medicalError } = await supabase
+      .from("medical")
+      .insert([{ id: studentId }]);
+
+    if (medicalError) {
+      console.log("Error adding medical record:", medicalError);
+      setMessage("Student added, but medical record failed.");
+      setLoading(false);
+      return;
+    }
 
       // ✅ Success Message
       setMessage(`Student ${form.first_name} has been created successfully!`);
       setForm({ first_name: "", middle_name: "", last_name: "", gender: "", birth_date: "" });
 
     } catch (error) {
-      console.error("Unexpected error:", error);
+      console.log("Unexpected error:", error);
       setMessage("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
@@ -81,14 +91,14 @@ export default function AddStudentPage() {
   };
 
   // ✅ Handle Navigation with Loading State
-  const handleNavigation = (path: string) => {
-    setLoadingLink(path);
-    router.push(path);
-  };
+  // const handleNavigation = (path: string) => {
+  //   setLoadingLink(path);
+  //   router.push(path);
+  // };
 
   return (
-    <div className="p-6 max-w-lg mx-auto h-screen">
-      <div className="flex justify-between items-center mb-4">
+    <div className="p-6 max-w-lg mx-auto h-fit">
+      {/* <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => handleNavigation("/students")}
           disabled={loadingLink !== null}
@@ -99,7 +109,7 @@ export default function AddStudentPage() {
           {loadingLink === "/students" ? <Loader2 className="animate-spin" size={20} /> : <ArrowLeft size={20} />}
           &nbsp; Back to Students
         </button>
-      </div>
+      </div> */}
 
       <div className="flex justify-between items-center mb-4">
         <Heading>Add Student</Heading>

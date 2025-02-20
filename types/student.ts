@@ -9,6 +9,15 @@ export interface Student {
     gender: string;
     enrollment_status: boolean;
   }
+  export interface Medical {
+    id: number;
+    has_health_issues: boolean;
+    has_chronic_diseases: boolean;
+    chronic_diseases: string;
+    has_allergies: boolean;
+    allergies: string;
+    medication: string;
+  }
   
   export interface Parents {
     id: number; // Matches student ID
@@ -29,6 +38,7 @@ export interface Student {
     emergency_fname: string,
     emergency_lname: string,
     emergency_number: string,
+    relation: string,
 
   }
   

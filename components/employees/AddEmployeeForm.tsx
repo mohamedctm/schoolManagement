@@ -43,7 +43,7 @@ export default function AddEmployeePage() {
         .single();
 
       if (error || !data) {
-        console.error("Error adding employee:", error);
+        console.log("Error adding employee:", error);
         setMessage("Error adding employee. Please try again.");
         setLoading(false);
         return;
@@ -61,7 +61,7 @@ export default function AddEmployeePage() {
         .insert([{ id: employeeId, salary: 0 }]);
 
       if (salaryError) {
-        console.error("Error adding salary record:", salaryError);
+        console.log("Error adding salary record:", salaryError);
         setMessage("Employee added, but salary record failed.");
         setLoading(false);
         return;
@@ -73,7 +73,7 @@ export default function AddEmployeePage() {
         .insert([{ id: employeeId, address: "", phone_number: "" }]);
 
       if (infoError) {
-        console.error("Error adding employee info record:", infoError);
+        console.log("Error adding employee info record:", infoError);
         setMessage("Employee added, but employee info record failed.");
         setLoading(false);
         return;
@@ -84,7 +84,7 @@ export default function AddEmployeePage() {
       setForm({ name: "", email: "", position: "", last_name: "" });
 
     } catch (error) {
-      console.error("Unexpected error:", error);
+      console.log("Unexpected error:", error);
       setMessage("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);

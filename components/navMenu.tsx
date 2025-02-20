@@ -15,7 +15,8 @@ export default function NavMenu() {
     return (
       path.startsWith("/employees") ||
       path.startsWith("/students") ||
-      path.startsWith("/storage") ||
+      path.startsWith("/class") ||
+      path.startsWith("/orders") ||
       path === "/dashboard"
     );
   };
@@ -38,7 +39,7 @@ export default function NavMenu() {
       await fetch("/api/logout", { method: "POST", credentials: "include" });
       router.push("/");
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.log("Logout failed:", error);
     } finally {
       setLoadingLogout(false);
     }
@@ -51,7 +52,7 @@ export default function NavMenu() {
         onClick={() => handleNavigation("/dashboard")}
         className={`mr-4 flex items-center gap-2 ${
           pathname === "/dashboard" ? "text-purple-800" : ""
-        } ${loadingLink === "/dashboard" ? "opacity-50 cursor-not-allowed" : ""}`}
+        } ${loadingLink === "/dashboard" ? "cursor-not-allowed" : ""}`}
       >
          <LayoutDashboard size={20} />
         Dashboard

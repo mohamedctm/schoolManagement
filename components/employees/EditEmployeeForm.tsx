@@ -5,10 +5,9 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Employee, Salary, EmployeeInfo } from "@/types/employee";
 import Heading from "@/components/Heading";
-import { ArrowLeft, Plus, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Upload, ChevronDown, ChevronUp } from "lucide-react";
 import countries from "world-countries";
 import { useRouter } from "next/navigation";
-
 
 interface EditEmployeeFormProps {
   id: string;
@@ -55,15 +54,32 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
   const [employee, setEmployee] = useState<Employee>(initialEmployeeState);
   const [employeeInfo, setEmployeeInfo] = useState<EmployeeInfo>(initialEmployeeInfoState);
   const [contractFile, setContractFile] = useState<File | null>(null);
+  const [expandedSection1, setExpandedSection1] = useState<string | null>("basic"); // Set "basic" as default expanded section
+  const [expandedSection2, setExpandedSection2] = useState<string | null>("employment"); // Set "basic" as default expanded section
+  const [expandedSection3, setExpandedSection3] = useState<string | null>("additional"); // Set "basic" as default expanded section
 
   useEffect(() => {
     if (message) {
-      const timer = setTimeout(() => setMessage(""), 3000); // Clear message after 10 seconds
+      const timer = setTimeout(() => setMessage(""), 5000); // Clear message after 10 seconds
       return () => clearTimeout(timer);
     }
   }, [message]);
+  const toggleSection1 = (section: string) => {
+    setExpandedSection1(expandedSection1 === section ? null : section);
+  };
+  const toggleSection2 = (section: string) => {
+    setExpandedSection2(expandedSection2 === section ? null : section);
+  };
+  const toggleSection3 = (section: string) => {
+    setExpandedSection3(expandedSection3 === section ? null : section);
+  };
+  
+  function countNullValues(record: Record<string, any>) {
+    return Object.values(record).filter((value) => value === null || value === "").length;
+  }
 
   useEffect(() => {
+   
     const fetchEmployeeData = async () => {
       try {
         const employeeId = Number(id);
@@ -83,7 +99,7 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
         setSalary(salData);
         setEmployeeInfo(empInfoData);
       } catch (error) {
-        console.error("Error fetching employee data:", error);
+        console.log("Error fetching employee data:", error);
         setMessage("Failed to fetch employee info data.");
       } finally {
         setLoading(false);
@@ -96,6 +112,7 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) setContractFile(e.target.files[0]);
   };
+
   const handleDeleteEmployee = async (id: number) => {
     if (!confirm("Are you sure you want to delete this employee?")) return;
   
@@ -105,9 +122,10 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
       await supabase.from("employees").delete().eq("id", id);
       router.push("/employees");
     } catch (error) {
-      console.error("Error deleting student:", error);
+      console.log("Error deleting student:", error);
     }
   };
+
   const handleUpdate = async () => {
     setUpdateLoading(true);
     if (!employee || !salary || !employeeInfo) return;
@@ -174,10 +192,9 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
       setMessage("Employee details updated successfully!");
       setUpdateLoading(false);
     } catch (error) {
-      console.error("Error updating employee data:", error);
+      console.log("Error updating employee data:", error);
       setMessage("Failed to update employee details.");
       setUpdateLoading(false);
-
     }
   };
 
@@ -206,10 +223,20 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
       {!updateLoading? 'Update Employee': 'updating..'}
       </button>
 
-      <div className="flex flex-wrap gap-6 justify-center md:justify-between">
-        {/* Basic Info */}
-        <div className="bg-white shadow-lg rounded-lg p-6 w-full md:w-[48%]">
-          <h2 className="text-lg text-gray-400 font-medium mb-4">Basic Information</h2>
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-6 justify-center md:justify-start w-[95%]">
+      {/* Basic Info */}
+      <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
+      <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection1("basic")}>
+            <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
+              expandedSection1 === "basic" ? "text-black " : "text-gray-500"
+            }`}>Basic Information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
+                ${countNullValues(employee) > 0 ? "text-red-600" : "text-green-600"}`}>
+                 {countNullValues(employee) > 0 ? "Incomplete" : "Complete"}
+              </span></h2>
+            {expandedSection1 === "basic" ? <ChevronUp /> : <ChevronDown />}
+          </div>
+          {expandedSection1 === "basic" && (
+            <div className="mt-4 border border-gray-300 rounded-lg p-6">
           <input type="text" placeholder="First name" className="w-full p-2 border border-gray-300 rounded mb-2" value={employee?.name || ""} onChange={(e) => setEmployee({ ...employee, name: e.target.value })} />
           <input type="text" placeholder="Last name" className="w-full p-2 border border-gray-300 rounded mb-2" value={employee?.last_name || ""} onChange={(e) => setEmployee({ ...employee, last_name: e.target.value })} />
           <input type="email" placeholder="Email" className="w-full p-2 border border-gray-300 rounded mb-2" value={employee?.email || ""} onChange={(e) => setEmployee({ ...employee, email: e.target.value })} />
@@ -232,11 +259,23 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
           <option value="School Advisor">School Advisor</option>
           <option value="Accountant">Accountant</option>
           </select>
-        </div>
+         </div> )}
+         </div>
+        
 
-        {/* Salary Info */}
-        <div className="bg-white shadow-lg rounded-lg p-6 w-full md:w-[40%]">
-          <h2 className="text-lg text-gray-400 font-medium mb-4">Employment Information</h2>
+      {/* employemnt Info */}
+      <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
+      <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection2("employment")}>
+            <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
+              expandedSection2 === "employment" ? "text-black " : "text-gray-500"
+            }`}>Employment Information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
+                ${countNullValues(salary) > 0 ? "text-red-600" : "text-green-600"}`}>
+                 {countNullValues(salary) > 0 ? "Incomplete" : "Complete"}
+              </span></h2>
+            {expandedSection2 === "employment" ? <ChevronUp /> : <ChevronDown />}
+          </div>
+          {expandedSection2 === "employment" && (
+            <div className="mt-4 border border-gray-300 rounded-lg p-6">
           <input type="number" placeholder="Salary" className="w-full p-2 border border-gray-300 rounded mb-2" value={salary?.salary || ""} onChange={(e) => setSalary({ ...salary, salary: Number(e.target.value) })} />
           <input type="number" placeholder="Contract Length (months)" className="w-full p-2 border border-gray-300 rounded mb-2" value={salary?.contract_length || ""} onChange={(e) => setSalary({ ...salary, contract_length: Number(e.target.value) })} />
           {/* File Upload */}
@@ -246,15 +285,23 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
         </label>
         {contractFile && <p className="text-sm text-gray-500 mt-2">{contractFile.name}</p>}
         {salary.contract_copy && <p className="text-xl text-yellow-600 mt-2"> 1 found!</p>}
+              </div>)}
               </div>
 
-        {/* Additional Info */}
-        <div className="bg-white shadow-lg rounded-lg p-6 w-full md:w-[48%]">
-          <h2 className="text-lg text-gray-400 font-medium mb-4">Additional Information</h2>
-          {/* date design */}
-          <div className="w-full mt-4 mb-4">
+      {/* additional Info */}
+      <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
+      <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection3("additional")}>
+            <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
+              expandedSection3 === "additional" ? "text-black " : "text-gray-500"
+            }`}>Additional Information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
+                ${countNullValues(employeeInfo) > 0 ? "text-red-600" : "text-green-600"}`}>
+                 {countNullValues(employeeInfo) > 0 ? "Incomplete" : "Complete"}
+              </span></h2>
+            {expandedSection3 === "additional" ? <ChevronUp /> : <ChevronDown />}
+          </div>
+          {expandedSection3 === "additional" && (
+            <div className="mt-4 border border-gray-300 rounded-lg p-6">
   <label className="block text-gray-700 font-medium mb-1">Date of Birth</label>
-  <div className="relative">
     <input 
       type="date" 
       value={employeeInfo.birth_date || ""} 
@@ -264,11 +311,7 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
     <span className="absolute inset-y-0 right-3 flex items-center text-gray-400 pointer-events-none">
       📅
     </span>
-  </div>
-</div>
 
-{/* date design */}
-        {/* {employeeInfo.birth_date && (<p className="text-yellow-600 text-xl py-10">{employeeInfo.birth_date}</p>)} */}
           <select className="w-full p-2 border border-gray-300 rounded mb-2" value={employeeInfo?.gender || ""} onChange={(e) => setEmployeeInfo({ ...employeeInfo, gender: e.target.value })} >
             <option value="" disabled>Select Gender</option>
             <option value="Male" >Male</option>
@@ -318,10 +361,12 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
         </option>
       ))}
           </select>
-        </div>
+        </div>)}
       </div>
 
-      {/* Update Button at the Bottom */}
+   
+                 </div>
+                    {/* Update Button at the Bottom */}
       <button onClick={handleUpdate} className="w-fit bg-green-200 text-green-800 px-4 py-2 rounded hover:bg-green-600 hover:text-white mt-4">
       {!updateLoading? 'Update Employee': 'updating..'}
       </button>
@@ -333,6 +378,7 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
                 >
                   Delete employee
                 </button>
-                </div>    </div>
+                </div>   
+                 </div>
   );
 }

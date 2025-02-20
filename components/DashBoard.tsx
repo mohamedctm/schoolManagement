@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
+// import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Users, GraduationCap, Package, Loader2 } from "lucide-react";
+import { Users, GraduationCap, Package, Loader2, BookOpen} from "lucide-react";
 
 export default function Dashboard() {
   const [user, setUser] = useState<{ username: string } | null>(null);
@@ -29,7 +29,7 @@ export default function Dashboard() {
           setUser({ username: data.username }); // ✅ Set state only if mounted
         }
       } catch (error) {
-        console.error("Authentication error:", error);
+        console.log("Authentication error:", error);
       }
     };
 
@@ -88,18 +88,33 @@ export default function Dashboard() {
         </button>
 
         <button
-          onClick={() => handleNavigation("/storage")}
+          onClick={() => handleNavigation("/class")}
           disabled={loadingLink !== null}
           className={`flex w-60 items-center gap-2 p-4 bg-fuchsia-700 text-white rounded-lg shadow-md hover:bg-fuchsia-600 transition ${
-            loadingLink === "/storage" ? "opacity-50 cursor-not-allowed" : ""
+            loadingLink === "/class" ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          {loadingLink === "/storage" ? (
+          {loadingLink === "/class" ? (
+            <Loader2 className="animate-spin" size={24} />
+          ) : (
+            <BookOpen size={24} />
+          )}
+          <span>Class Room</span>
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/orders")}
+          disabled={loadingLink !== null}
+          className={`flex w-60 items-center gap-2 p-4 bg-orange-500 text-white rounded-lg shadow-md hover:bg-orange-400 transition ${
+            loadingLink === "/orders" ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {loadingLink === "/orders" ? (
             <Loader2 className="animate-spin" size={24} />
           ) : (
             <Package size={24} />
           )}
-          <span>Storage</span>
+          <span>Orders</span>
         </button>
       </nav>
     </div>
