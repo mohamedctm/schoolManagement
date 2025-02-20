@@ -5,15 +5,8 @@ import { supabase } from "@/lib/supabase";
 export default function AddItem({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
   const [categoryId, setCategoryId] = useState<number | null>(null);
-  const [categories, setCategories] = useState<any[]>([]);
+  
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      let { data, error } = await supabase.from("categories").select("*");
-    //   if (!error) setCategories();
-    };
-    fetchCategories();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,9 +36,6 @@ export default function AddItem({ onClose }: { onClose: () => void }) {
         className="w-full p-2 border border-gray-300 rounded mb-2"
       >
         <option value="">Select Category</option>
-        {categories.map((cat) => (
-          <option key={cat.id} value={cat.id}>{cat.name}</option>
-        ))}
       </select>
       <button
         type="submit"
