@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Heading from "@/components/Heading";
-import { ArrowLeft, Loader2 } from "lucide-react";
-
-export default function AddClassPage() {
+import { Loader2 } from "lucide-react";
+interface AddClassPageProps {
+  onClassAdded: () => void; // Callback function for updating the main list
+}
+export default function AddClassPage({ onClassAdded }: AddClassPageProps) {
   const [form, setForm] = useState({
     class_grade: "",
     class_name: "",
@@ -15,7 +17,6 @@ export default function AddClassPage() {
   });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false); // ✅ Track loading state
-  const [loadingLink, setLoadingLink] = useState<string | null>(null); // ✅ Track link clicks
   const router = useRouter();
 
   useEffect(() => {
@@ -78,6 +79,7 @@ export default function AddClassPage() {
       // ✅ Success Message
       setMessage(`Class named (${form.class_name}) in ${form.class_grade} has been created!`);
       setForm({ class_grade: "", class_name: "", class_size: 0, class_description: "" });
+      onClassAdded();
   
     } catch (error) {
       console.log("Unexpected error:", error);
@@ -88,14 +90,14 @@ export default function AddClassPage() {
   };
   
   // ✅ Handle Navigation with Loading State
-  const handleNavigation = (path: string) => {
-    setLoadingLink(path);
-    router.push(path);
-  };
+  // const handleNavigation = (path: string) => {
+  //   setLoadingLink(path);
+  //   router.push(path);
+  // };
 
   return (
-    <div className="p-6 max-w-lg mx-auto h-screen">
-      <div className="flex justify-between items-center mb-4">
+    <div className="p-6 max-w-lg mx-auto h-fit">
+      {/* <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => handleNavigation("/class")}
           disabled={loadingLink !== null}
@@ -106,7 +108,7 @@ export default function AddClassPage() {
           {loadingLink === "/class" ? <Loader2 className="animate-spin" size={20} /> : <ArrowLeft size={20} />}
           &nbsp; Back to class
         </button>
-      </div>
+      </div> */}
 
       <div className="flex justify-between items-center mb-4">
         <Heading>Add class</Heading>
@@ -150,6 +152,7 @@ export default function AddClassPage() {
           <option value="E">E</option>
           <option value="F">F</option>
         </select>
+        <label className="text-yellow-600">Specify limit</label>
         <input 
           type="number" placeholder="Last Name" 
           className="w-full p-2 border border-gray-300 rounded mb-2" 
@@ -159,14 +162,12 @@ export default function AddClassPage() {
           disabled={loading}
         />
         <input 
-          type="text" placeholder="description" 
+          type="text" placeholder="Description (optional" 
           className="w-full p-2 border border-gray-300 rounded mb-2" 
           value={form.class_description} 
-          onChange={(e) => setForm({ ...form, class_description: e.target.value })} required 
+          onChange={(e) => setForm({ ...form, class_description: e.target.value })}  
           disabled={loading}
-        />
-       
-        
+        /> 
         <button 
           type="submit" 
           className={`w-full flex justify-center items-center gap-2 bg-green-200 text-lg text-green-800 px-4 py-2 rounded hover:bg-green-600 hover:text-green-100 transition ${
@@ -177,7 +178,6 @@ export default function AddClassPage() {
           {loading ? <Loader2 className="animate-spin" size={20} /> : "Add class"}
         </button>
       </form>
-
       {message && <p className="mt-6 text-green-500 text-xl font-mono">{message}</p>}
     </div>
   );

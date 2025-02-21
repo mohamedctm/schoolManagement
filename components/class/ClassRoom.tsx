@@ -7,6 +7,8 @@ import Heading from "@/components/Heading";
 import { Class } from "@/types/class";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 import ProgressBar from "@/components/progress"
+import Modal from "@/components/Modal";
+import AddClassPage from "@/components/class/AddClass";
 
 
 
@@ -54,7 +56,7 @@ export default function ClassRoom() {
     const { data, error } = await supabase
       .from("classroom")
       .select("*")
-      .order("class_grade", { ascending: true });
+      .order("class_grade", { ascending: false });
 
     if (error) {
       console.log("Error fetching classes:", error);
@@ -104,10 +106,14 @@ export default function ClassRoom() {
   const indexOfLastClass = currentPage * classesPerPage;
   const indexOfFirstClass = indexOfLastClass - classesPerPage;
   const currentClasses = filteredClasses.slice(indexOfFirstClass, indexOfLastClass);
-  const totalPages = Math.ceil(filteredClasses.length / classesPerPage);
-
+  const [modal, setModal] = useState<string | null>(null);
+  const handleClassAdded = () => {
+    fetchClasses(); // Refresh the list when a class is added
+  };
   return (
-    <div className="p-6 w-full max-w-4xl mx-auto h-screen">
+    <div className="p-6 w-full max-auto mx-auto h-auto">
+      {modal === "category" && <Modal isOpen onClose={() => setModal(null)}><AddClassPage onClassAdded={handleClassAdded} /></Modal>}
+
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => {
@@ -124,15 +130,14 @@ export default function ClassRoom() {
         </button>
       </div>
 
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between max-w-5xl items-center mb-4">
         <Heading>Class Room</Heading>
-      </div>
-      <div className="flex justify-between items-center mb-4">
         <button
-          onClick={() => {
-            setLoadingLink("/class/add");
-            router.push("/class/add");
-          }}
+          // onClick={() => {
+          //   setLoadingLink("/class/add");
+          //   router.push("/class/add");
+          // }}
+          onClick={() => setModal("category")}
           disabled={loadingLink !== null}
           className={`flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded ${
             loadingLink === "/class/add" ? "opacity-50 cursor-not-allowed" : ""
@@ -142,7 +147,10 @@ export default function ClassRoom() {
           Add Class
         </button>
       </div>
-      <div className="bg-white shadow rounded-lg p-4 py-8 flex-grow justify-start overflow-auto flex flex-row flex-wrap gap-4">
+      <div className="flex justify-between items-center mb-4">
+        
+      </div>
+      <div className=" flex flex-row flex-wrap gap-6">
         {loading ? (
           <p className="text-center text-gray-500">Loading...</p>
         ) : currentClasses.length === 0 ? (
@@ -151,20 +159,19 @@ export default function ClassRoom() {
           currentClasses.map((classItem) => (
             <div
               key={classItem.serial}
-              className="border w-[35%] md:w-[44%] sm:w-[94%] border-gray-300 p-4 py-6 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+              className="border  border-gray-300 p-4 py-6 min-w-[320px] rounded-lg
+               flex flex-row flex-wrap items-start gap-2"
             >
-              <div className="flex flex-row flex-wrap md:flex-row md:items-center gap-4">
+              <div className="flex flex-row flex-wrap items-start gap-4">
                 <h2 className="text-lg font-light">{classItem.class_grade}</h2>
                 <p className="text-xl text-black font-bold ">{classItem.class_name}</p>
-               
-                {/* <span className="text-l text-blue-600">{classStudentCount[classItem.serial] ?? 0} </span> */}
-                <ProgressBar
+              </div>
+               {/* <span className="text-l text-blue-600">{classStudentCount[classItem.serial] ?? 0} </span> */}
+               <ProgressBar
                   current={classStudentCount[classItem.serial] ?? 0}
                   total={classItem.class_size}
                 />
                 {/* <span className="text-l text-orange-500"> {classItem.class_size}</span> */}
-              </div>
-              <div className="flex gap-2 mt-2 md:mt-0">
                 <button
                   onClick={() => {
                     setLoadingLink(`/class/edit/${classItem.serial}`);
@@ -177,7 +184,7 @@ export default function ClassRoom() {
                 >
                   {loadingLink === `/class/edit/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : "Manage"}
                 </button>
-              </div>
+                              
             </div>
           ))
         )}

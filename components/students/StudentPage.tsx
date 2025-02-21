@@ -138,10 +138,18 @@ export default function StudentPage() {
 
       <div className="flex justify-between items-center mb-4">
         <Heading>Students</Heading>
+        <button
+          // onClick={() => router.push("/students/add")}
+          onClick={() => setModal("category")}
+          className="flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded"
+        >
+          <Plus size={20} />
+          Add Student
+        </button>
       </div>
 
       <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2 w-1/2">
+        <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2 w-[90%]">
           <Search size={20} className="text-gray-500" />
           <input
             type="text"
@@ -153,16 +161,7 @@ export default function StudentPage() {
         </div>
       </div>
       <div className="flex justify-between items-center mb-4">
-      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
-
-        <button
-          // onClick={() => router.push("/students/add")}
-          onClick={() => setModal("category")}
-          className="flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded"
-        >
-          <Plus size={20} />
-          Add Student
-        </button>
+      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}  
       </div>
 
 

@@ -3,6 +3,8 @@
 import { useState } from "react";
 
 export default function ProgressBar({ current, total }: { current: number; total: number }) {
+    const current_count = current;
+    const total_count = total;
   const progress = total > 0 ? Math.min((current / total) * 100, 100) : 0;
   return (
     <div className="w-full bg-blue-600 flex rounded-lg h-4 relative overflow-hidden">
@@ -11,8 +13,10 @@ export default function ProgressBar({ current, total }: { current: number; total
         style={{ width: `${progress}%` }}
       ></div>
       <span className="absolute inset-0 flex justify-center items-center text-xs font-semibold text-gray-200">
-        {progress.toFixed(1)}%
+       {current_count} / {total_count}
+       {/* {progress.toFixed(1)}%  */}
       </span>
-    </div>
+      
+    </div> 
   );
 };

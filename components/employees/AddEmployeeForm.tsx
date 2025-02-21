@@ -98,8 +98,8 @@ export default function AddEmployeePage() {
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto h-screen">
-      <div className="flex justify-between items-center mb-4">
+    <div className="p-6 max-w-lg mx-auto h-fit">
+      {/* <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => handleNavigation("/employees")}
           disabled={loadingLink !== null}
@@ -110,7 +110,7 @@ export default function AddEmployeePage() {
           {loadingLink === "/employees" ? <Loader2 className="animate-spin" size={20} /> : <ArrowLeft size={20} />}
           &nbsp; Back to Employees
         </button>
-      </div>
+      </div> */}
 
       <div className="flex justify-between items-center mb-4">
         <Heading>Add Employee</Heading>

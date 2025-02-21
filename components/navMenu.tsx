@@ -25,8 +25,8 @@ export default function NavMenu() {
 
   // ✅ Handle Navigation with Loading State
   const handleNavigation = (path: string) => {
-    if (loadingLink) return; // Prevent multiple clicks
-    setLoadingLink(path);
+    // if (loadingLink) return; // Prevent multiple clicks
+    // setLoadingLink(path);
     router.push(path);
   };
 
@@ -50,9 +50,9 @@ export default function NavMenu() {
       {/* Dashboard Link */}
       <button
         onClick={() => handleNavigation("/dashboard")}
-        className={`mr-4 flex items-center gap-2 ${
-          pathname === "/dashboard" ? "text-purple-800" : ""
-        } ${loadingLink === "/dashboard" ? "cursor-not-allowed" : ""}`}
+        className={`mr-4 flex items-center text-lg gap-2 ${
+          pathname === "/dashboard" ? "text-purple-800" : "text-gray-600"
+        }`}
       >
          <LayoutDashboard size={20} />
         Dashboard

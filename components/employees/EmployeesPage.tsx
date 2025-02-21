@@ -7,7 +7,8 @@ import { Employee } from "@/types/employee";
 import Heading from "@/components/Heading";
 import {Pagination} from "@/components/paging";
 import { ArrowLeft, Plus, Search, Loader2 } from "lucide-react";
-import AddStudentPage from "../students/AddStudentForm";
+import AddEmployeeForm from "@/components/employees/AddEmployeeForm";
+import Modal from "@/components/Modal";
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -111,9 +112,12 @@ export default function EmployeesPage() {
     },
     [totalPages]
   );
+  const [modal, setModal] = useState<string | null>(null);
 
   return (
     <div className="p-6 max-w-4xl mx-auto h-screen">
+            {modal === "category" && <Modal isOpen onClose={() => setModal(null)}><AddEmployeeForm  /></Modal>}
+      
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => {
@@ -132,29 +136,12 @@ export default function EmployeesPage() {
 
       <div className="flex justify-between items-center mb-4">
         <Heading>Employees</Heading>
-      </div>
-
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2 w-1/2">
-          <Search size={20} className="text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search by name or last name..."
-            className="w-full outline-none"
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center mb-4">
-        {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
-
         <button
-          onClick={() => {
-            setLoadingLink("/employees/add");
-            router.push("/employees/add");
-          }}
+          // onClick={() => {
+          //   setLoadingLink("/employees/add");
+          //   router.push("/employees/add");
+          // }}
+          onClick={() => setModal("category")}
           disabled={loadingLink !== null}
           className={`flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded ${
             loadingLink === "/employees/add" ? "opacity-50 cursor-not-allowed" : ""
@@ -163,6 +150,23 @@ export default function EmployeesPage() {
           {loadingLink === "/employees/add" ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
           Add Employee
         </button>
+      </div>
+
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2 bg-white border border-gray-300 w-[90%] rounded-lg px-3 py-2">
+          <Search size={20} className="text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search by name or last name..."
+            className="w-full outline-none order-1"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center mb-4">
+        {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
       </div>
 
       <div className="bg-white shadow rounded-lg p-4 py-8 flex-grow overflow-auto flex flex-col gap-4">
