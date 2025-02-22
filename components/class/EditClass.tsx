@@ -17,7 +17,7 @@ interface EditStudentFormProps {
 const initialClassState: Class = {
   serial: 0,
   create_at: "",
-  class_grade: "",
+  class_grade: 0,
   class_name: "",
   class_size: 0,
   class_description: "",
@@ -364,7 +364,12 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
       setUpdateLoading(false);
     }
   };
-
+  const formatGrade = (grade: number) => {
+    if (grade === 15) return "KG";
+    if (grade === 13) return "Pre-K 1";
+    if (grade === 14) return "Pre-K 2";
+    return `Grade ${grade}`;
+  };
   if (loading) return <p>Loading...</p>;
   return !found ? (
     <p className="text-l text-center py-20 text-gray-500">
@@ -378,7 +383,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
         </Link>
       </div>
       <div className="flex justify-between items-center mb-4">
-        <Heading>Manage class</Heading>
+        <Heading>Manage -  <span>{formatGrade(Number(classes.class_grade))} {classes.class_name}</span></Heading>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:flex-wrap gap-6 justify-center md:justify-start w-[99%]">
@@ -453,7 +458,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
           <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection1("basic")}>
             <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
               expandedSection1 === "basic" ? "text-black " : "text-gray-500"
-            }`}> <span className="text-2xl text-black font-bold">{classes.class_grade} ({classes.class_name})</span> <span className={`w-fit px-4 py-2 rounded mt-4 transition 
+            }`}> <span className="text-2xl text-black font-bold">{formatGrade(Number(classes.class_grade))} ({classes.class_name})</span> <span className={`w-fit px-4 py-2 rounded mt-4 transition 
                 ${countNullValues(classes) > 0 ? "text-red-600" : "text-green-600"}`}>
                  {countNullValues(classes) > 0 ? "Incomplete" : "Complete"}
               </span></h2>
@@ -461,7 +466,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
           </div>
           {expandedSection1 === "basic" && (
             <div className="mt-4 border border-gray-300 rounded-lg p-6">
-              <p className="text-lg text-gray-800">{classes.class_grade} Branch : {classes.class_name}</p>
+              <p className="text-lg text-gray-600">{formatGrade(classes.class_grade)} Branch : {classes.class_name}</p>
               <label>Size </label>
               <input type="number" placeholder="Change limit" className="w-full p-2 border border-gray-300 rounded mb-2" value={classes?.class_size || 0} onChange={(e) => setClass({ ...classes, class_size: Number(e.target.value) })} />
               <label>Description</label>

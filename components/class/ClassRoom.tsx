@@ -9,6 +9,7 @@ import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 import ProgressBar from "@/components/progress"
 import Modal from "@/components/Modal";
 import AddClassPage from "@/components/class/AddClass";
+import AddSubjectPage from "@/components/class/AddSubject";
 
 
 
@@ -125,7 +126,8 @@ export default function ClassRoom() {
   };
   return (
     <div className="p-6 w-full max-auto mx-auto h-auto">
-      {modal === "category" && <Modal isOpen onClose={() => setModal(null)}><AddClassPage onClassAdded={handleClassAdded} /></Modal>}
+      {modal === "addclass" && <Modal isOpen onClose={() => setModal(null)}><AddClassPage onClassAdded={handleClassAdded} /></Modal>}
+      {modal === "addsubject" && <Modal isOpen onClose={() => setModal(null)}><AddSubjectPage onClassAdded={handleClassAdded} /></Modal>}
 
       <div className="flex justify-between items-center mb-4">
         <button
@@ -145,22 +147,22 @@ export default function ClassRoom() {
 
       <div className="flex justify-between max-w-5xl items-center mb-4">
         <Heading>Class Room</Heading>
-        <button
-          // onClick={() => {
-          //   setLoadingLink("/class/add");
-          //   router.push("/class/add");
-          // }}
-          onClick={() => setModal("category")}
+        
+      </div>
+      <div className="flex justify-items-end gap-4 max-w-5xl py-10 items-center mb-4">
+      <button onClick={() => setModal("addclass")}
           disabled={loadingLink !== null}
-          className={`flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded ${
-            loadingLink === "/class/add" ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className="flex items-center gap-2 bg-blue-200 text-blue-500 hover:bg-blue-600 hover:text-blue-200 px-4 py-2 rounded"
         >
-          {loadingLink === "/class/add" ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
           Add Class
         </button>
-      </div>
-      <div className="flex justify-between items-center mb-4">
+      <button
+          onClick={() => setModal("addsubject")}
+          disabled={loadingLink !== null}
+          className="flex items-center gap-2 bg-blue-200 text-blue-500 hover:bg-blue-600 hover:text-blue-200 px-4 py-2 rounded"
+        >
+          Add subject
+        </button>
         
       </div>
       <div className=" flex flex-row flex-wrap gap-6">

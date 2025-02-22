@@ -15,5 +15,10 @@ export interface Class {
     student_id: number;
     class_id: number;
   }
+  export interface Subject {
+    id : number; 
+    subject_name: string;
+    
+  }
   
   
