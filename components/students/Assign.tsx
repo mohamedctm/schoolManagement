@@ -22,7 +22,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
   const [student, setStudent] = useState<Student | null>(null);
   const [classes, setClasses] = useState<Class[]>([]);
   const [selectedClass, setSelectedClass] = useState<number | null>(null);
-  const [currentAssignment, setCurrentAssignment] = useState<{ class_id: number | null; class_grade: string | null; class_name: string | null }>({
+  const [currentAssignment, setCurrentAssignment] = useState<{ class_id: number | null; class_grade: number | null; class_name: string | null }>({
     class_id: null,
     class_grade: null,
     class_name: null,
@@ -196,7 +196,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
 
       setCurrentAssignment({
         class_id: selectedClass,
-        class_grade: classes.find((c) => c.serial === selectedClass)?.class_grade || "Updated Grade",
+        class_grade: classes.find((c) => c.serial === selectedClass)?.class_grade || 0,
         class_name: classes.find((c) => c.serial === selectedClass)?.class_name || "Updated Class",
       });
     } catch (error) {
@@ -222,7 +222,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
       <div className="flex justify-between items-center mb-4">
         <Heading>Assign Student to Class</Heading>
       </div>
-    <p className="text-lg text-yellow-700 px-5">current grade : {currentAssignment.class_grade} {currentAssignment.class_name}</p>
+    <p className="text-lg text-yellow-700 px-5">current grade : {Number(currentAssignment.class_grade)} {currentAssignment.class_name}</p>
       <p className="text-green-600 text-xl font-normal mb-4">{message && <span>{message}</span>}</p>
 
       <form onSubmit={handleSubmit} className="bg-white w-[94%] md:w-[80%] sm:w-full shadow rounded-lg p-6">
