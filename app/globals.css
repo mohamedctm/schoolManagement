@@ -13,7 +13,11 @@
     --foreground: #ededed;
   }
 }
-
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 body {
   color: var(--foreground);
   background: var(--background);

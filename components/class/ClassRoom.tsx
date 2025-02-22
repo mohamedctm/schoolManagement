@@ -127,7 +127,7 @@ export default function ClassRoom() {
     return `Grade ${grade}`;
   };
   return (
-    <div className="p-6 w-full max-auto mx-auto h-auto">
+    <div className="p-6 max-w-[95%] mx-auto my-2 h-auto">
       {modal === "addclass" && <Modal isOpen onClose={() => setModal(null)}><AddClassPage onClassAdded={handleClassAdded} /></Modal>}
       {modal === "addsubject" && <Modal isOpen onClose={() => setModal(null)}><AddSubjectPage onClassAdded={handleClassAdded} /></Modal>}
 
