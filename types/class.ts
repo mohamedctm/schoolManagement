@@ -3,7 +3,7 @@
 export interface Class {
     serial: number;
     create_at: string;
-    class_grade: string;
+    class_grade: number;
     class_name: string;
     class_size: number;
     class_description: string;

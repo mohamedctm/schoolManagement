@@ -26,8 +26,9 @@ export default function WebsiteMenu() {
   return (
     <>
       {/* Navbar Container */}
-      <nav className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white shadow-md
-      p-5 flex justify-between items-center ">
+      <nav className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-red-500  ">
+        <div className=" relative max-w-6xl text-white shadow-md 
+      p-5 flex justify-between items-center">
         {/* Logo + School Name */}
         <div className="flex items-center gap-4">
           <Image 
@@ -85,6 +86,7 @@ export default function WebsiteMenu() {
             ></path>
           </svg>
         </div> */}
+        </div>
       </nav>
 
       {/* Mobile Sliding Menu */}
@@ -121,7 +123,7 @@ export default function WebsiteMenu() {
       {/* Overlay to close menu when clicking outside */}
       {menuOpen && (
         <div 
-          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 z-30" 
+          className="fixed top-0 left-0 w-full h-full bg-gray-700 opacity-70 z-30" 
           onClick={() => setMenuOpen(false)}
         ></div>
       )}

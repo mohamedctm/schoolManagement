@@ -10,7 +10,7 @@ interface AddClassPageProps {
 }
 export default function AddClassPage({ onClassAdded }: AddClassPageProps) {
   const [form, setForm] = useState({
-    class_grade: "",
+    class_grade: 0,
     class_name: "",
     class_size: 0,
     class_description: "",
@@ -51,7 +51,7 @@ export default function AddClassPage({ onClassAdded }: AddClassPageProps) {
       }
   
       if (existingClass) {
-        setMessage(`Class (${form.class_name}) in ${form.class_grade} already exists!`);
+        setMessage(`Class (${form.class_name}) in Grade ${form.class_grade} already exists!`);
         setLoading(false);
         return;
       }
@@ -77,8 +77,8 @@ export default function AddClassPage({ onClassAdded }: AddClassPageProps) {
       }
   
       // ✅ Success Message
-      setMessage(`Class named (${form.class_name}) in ${form.class_grade} has been created!`);
-      setForm({ class_grade: "", class_name: "", class_size: 0, class_description: "" });
+      setMessage(`Class named (${form.class_name}) in Grade ${form.class_grade} has been created!`);
+      setForm({ class_grade: 0, class_name: "", class_size: 0, class_description: "" });
       onClassAdded();
   
     } catch (error) {
@@ -118,25 +118,25 @@ export default function AddClassPage({ onClassAdded }: AddClassPageProps) {
       <select 
           className="w-full p-2 border border-gray-300 rounded mb-2" 
           value={form.class_grade} 
-          onChange={(e) => setForm({ ...form, class_grade: e.target.value })} required
+          onChange={(e) => setForm({ ...form, class_grade: Number(e.target.value) })} required
           disabled={loading}
         >
           <option value="" disabled>Select Grade</option>
-          <option value="Kg">Kg </option>
-          <option value="pre-k1">pre-k1</option>
-          <option value="pre-k2">pre-k2</option>
-          <option value="Grade 1">Grade 1</option>
-          <option value="Grade 2">Grade 2</option>
-          <option value="Grade 3">Grade 3</option>
-          <option value="Grade 4">Grade 4</option>
-          <option value="Grade 5">Grade 5</option>
-          <option value="Grade 6">Grade 6</option>
-          <option value="Grade 7">Grade 7</option>
-          <option value="Grade 8">Grade 8</option>
-          <option value="Grade 9">Grade 9</option>
-          <option value="Grade 10">Grade 10</option>
-          <option value="Grade 11">Grade 11</option>
-          <option value="Grade 12">Grade 12</option>
+          <option value="15">Kg </option>
+          <option value="13">pre-k1</option>
+          <option value="14">pre-k2</option>
+          <option value="1">Grade 1</option>
+          <option value="2">Grade 2</option>
+          <option value="3">Grade 3</option>
+          <option value="4">Grade 4</option>
+          <option value="5">Grade 5</option>
+          <option value="6">Grade 6</option>
+          <option value="7">Grade 7</option>
+          <option value="8">Grade 8</option>
+          <option value="9">Grade 9</option>
+          <option value="10">Grade 10</option>
+          <option value="11">Grade 11</option>
+          <option value="12">Grade 12</option>
         </select>
         <select 
           className="w-full p-2 border border-gray-300 rounded mb-2" 

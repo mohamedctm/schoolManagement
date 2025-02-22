@@ -56,7 +56,7 @@ export default function ClassRoom() {
     const { data, error } = await supabase
       .from("classroom")
       .select("*")
-      .order("class_grade", { ascending: false });
+      .order("class_grade", { ascending: true });
 
     if (error) {
       console.log("Error fetching classes:", error);
@@ -110,6 +110,19 @@ export default function ClassRoom() {
   const handleClassAdded = () => {
     fetchClasses(); // Refresh the list when a class is added
   };
+  const groupedClasses = currentClasses.reduce((acc, classItem) => {
+    if (!acc[classItem.class_grade]) {
+      acc[classItem.class_grade] = [];
+    }
+    acc[classItem.class_grade].push(classItem);
+    return acc;
+  }, {} as Record<string, Class[]>);
+  const formatGrade = (grade: number) => {
+    if (grade === 15) return "KG";
+    if (grade === 13) return "Pre-K 1";
+    if (grade === 14) return "Pre-K 2";
+    return `Grade ${grade}`;
+  };
   return (
     <div className="p-6 w-full max-auto mx-auto h-auto">
       {modal === "category" && <Modal isOpen onClose={() => setModal(null)}><AddClassPage onClassAdded={handleClassAdded} /></Modal>}
@@ -151,42 +164,43 @@ export default function ClassRoom() {
         
       </div>
       <div className=" flex flex-row flex-wrap gap-6">
-        {loading ? (
-          <p className="text-center text-gray-500">Loading...</p>
-        ) : currentClasses.length === 0 ? (
-          <p className="text-center text-gray-500">No class found.</p>
-        ) : (
-          currentClasses.map((classItem) => (
-            <div
-              key={classItem.serial}
-              className="border  border-gray-300 p-4 py-6 min-w-[320px] rounded-lg
-               flex flex-row flex-wrap items-start gap-2"
-            >
-              <div className="flex flex-row flex-wrap items-start gap-4">
-                <h2 className="text-lg font-light">{classItem.class_grade}</h2>
-                <p className="text-xl text-black font-bold ">{classItem.class_name}</p>
-              </div>
-               {/* <span className="text-l text-blue-600">{classStudentCount[classItem.serial] ?? 0} </span> */}
-               <ProgressBar
-                  current={classStudentCount[classItem.serial] ?? 0}
-                  total={classItem.class_size}
-                />
-                {/* <span className="text-l text-orange-500"> {classItem.class_size}</span> */}
-                <button
-                  onClick={() => {
-                    setLoadingLink(`/class/edit/${classItem.serial}`);
-                    router.push(`/class/edit/${classItem.serial}`);
-                  }}
-                  disabled={loadingLink !== null}
-                  className={`flex items-center justify-center gap-2 bg-green-200 text-green-800 px-3 py-1 rounded hover:bg-green-700 hover:text-white ${
-                    loadingLink === `/class/edit/${classItem.serial}` ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                >
-                  {loadingLink === `/class/edit/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : "Manage"}
-                </button>
-                              
+      {loading ? (
+        <p className="text-center text-gray-500">Loading...</p>
+      ) : Object.keys(groupedClasses).length === 0 ? (
+        <p className="text-center text-gray-500">No class found.</p>
+      ) : (
+        Object.entries(groupedClasses).map(([grade, classList]) => (
+          <fieldset key={grade} className="border-2 border-dotted border-b-cyan-700 p-4 rounded-lg">
+            <legend className="text-cyan-800 text-lg font-bold">{formatGrade(Number(grade))}</legend>
+            <div className="flex flex-row flex-wrap gap-6 p-4 rounded-lg">
+              {classList
+                .sort((a, b) => a.class_name.localeCompare(b.class_name)) // Sort by class_name (A, B, C)
+                .map((classItem) => (
+                  <div
+                    key={classItem.serial}
+                    className="border border-gray-300 p-4 py-6 min-w-[320px] rounded-lg flex flex-row gap-2"
+                  >
+                    <p className="text-xl text-black font-bold">{classItem.class_name}</p>
+
+                    <ProgressBar current={classStudentCount[classItem.serial] ?? 0} total={classItem.class_size} />
+
+                    <button
+                      onClick={() => {
+                        setLoadingLink(`/class/edit/${classItem.serial}`);
+                        router.push(`/class/edit/${classItem.serial}`);
+                      }}
+                      disabled={loadingLink !== null}
+                      className={`flex items-center font-light text-lg justify-center gap-2 bg-blue-200 text-blue-800 px-3 py-1 rounded hover:bg-blue-600 hover:text-white ${
+                        loadingLink === `/class/edit/${classItem.serial}` ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                    >
+                      {loadingLink === `/class/edit/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : "Manage"}
+                    </button>
+                  </div>
+                ))}
             </div>
-          ))
+          </fieldset>
+        ))
         )}
       </div>
       <p className="py-12">&nbsp;</p>
