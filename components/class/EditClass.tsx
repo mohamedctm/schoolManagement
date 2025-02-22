@@ -4,11 +4,9 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Student } from "@/types/student";
-import { Class, Assignment } from "@/types/class";
+import { Class } from "@/types/class";
 import Heading from "@/components/Heading";
-import { ArrowLeft, Plus, Upload, ChevronDown, ChevronUp } from "lucide-react";
-import countries from "world-countries";
-import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 interface EditStudentFormProps {
   id: string;
@@ -23,43 +21,19 @@ const initialClassState: Class = {
   class_description: "",
 };
 
-const initialAssignState: Assignment = {
-  assigned_serial: 0,
-  created_at: "",
-  student_id: 0,
-  class_id: 0,
-};
-
-const initialStudentState: Student = {
-  id: 0,
-  first_name: "",
-  middle_name: "",
-  last_name: "",
-  birth_date: "",
-  gender: "",
-  enrollment_status: false,
-};
-
 export default function EditStudentForm({ id }: EditStudentFormProps) {
-  const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [found, setFound] = useState(true);
-  const [updateLoading, setUpdateLoading] = useState(false);
-  const [assign, setAssign] = useState<Assignment>(initialAssignState);
-  const [student, setStudent] = useState<Student>(initialStudentState);
   const [classes, setClass] = useState<Class>(initialClassState);
   const [students, setStudents] = useState<Student[]>([]);
   const [assignedStudents, setAssignedStudents] = useState<Student[]>([]);
   const [unassignedStudents, setUnassignedStudents] = useState<Student[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
-  const [expandedSection1, setExpandedSection1] = useState<string | null>("");
   const [showNeverAssigned, setShowNeverAssigned] = useState(true); // Toggle for never-assigned students
 
-  const toggleSection1 = (section: string) => {
-    setExpandedSection1(expandedSection1 === section ? null : section);
-  };
+
 
   useEffect(() => {
     if (message) {
@@ -120,11 +94,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
         );
 
         // Students assigned to other classes
-        const assignedToOtherClasses = studentsData.filter(
-          (s) =>
-            assignmentsData.map((a) => a.student_id).includes(s.id) &&
-            !assignedStudentIds.includes(s.id)
-        );
+        
 
         // Default: Show never-assigned students
         setUnassignedStudents(neverAssignedStudents);
@@ -301,69 +271,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
       setMessage("Failed to remove student.");
     }
   };
-
-  const countNullValues = (record: Record<string, any>) => {
-    return Object.values(record).filter((value) => value === null || value === "").length;
-  };
-
-  const HandleDeleteClass = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this class?")) return;
   
-    try {
-      // Check if there are any students assigned to the class
-      const { data: assignedStudents, error: fetchError } = await supabase
-        .from("assignment")
-        .select("student_id")
-        .eq("class_id", id);
-  
-      if (fetchError) throw fetchError;
-  
-      if (assignedStudents && assignedStudents.length > 0) {
-        setMessage("This class has students assigned to it and cannot be removed.");
-        return;
-      }
-  
-      // Proceed to delete the class if no students are assigned
-      const { error: classError } = await supabase
-        .from("classroom")
-        .delete()
-        .eq("serial", id);
-  
-      if (classError) throw classError;
-  
-      setMessage("Class deleted successfully.");
-      router.push("/class");
-    } catch (error) {
-      console.log("Error deleting class:", error);
-      setMessage("An error occurred while deleting the class.");
-    }
-  };
-  
-  const handleUpdate = async () => {
-    setUpdateLoading(true);
-    if (!student || !classes) return;
-
-    try {
-      const updateTable = async (table: string, data: any) => {
-        const { error } = await supabase.from(table).update(data).eq("serial", id);
-        if (error) throw error;
-      };
-
-      await Promise.all([
-        updateTable("classroom", {
-          class_size: classes.class_size,
-          class_description: classes.class_description,
-        }),
-      ]);
-
-      setMessage("Class details updated!");
-      setUpdateLoading(false);
-    } catch (error) {
-      console.log("Error updating class data:", error);
-      setMessage("Failed to update class details.");
-      setUpdateLoading(false);
-    }
-  };
   const formatGrade = (grade: number) => {
     if (grade === 15) return "KG";
     if (grade === 13) return "Pre-K 1";
@@ -453,43 +361,6 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
         </div>
 
         {/* Class Information */}
-        <div className="w-full sm:w-full lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-          <p className="text-green-600 text-xl font-normal mb-4"> {message && <span>{message}</span>}</p>
-          <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection1("basic")}>
-            <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
-              expandedSection1 === "basic" ? "text-black " : "text-gray-500"
-            }`}> <span className="text-2xl text-black font-bold">{formatGrade(Number(classes.class_grade))} ({classes.class_name})</span> <span className={`w-fit px-4 py-2 rounded mt-4 transition 
-                ${countNullValues(classes) > 0 ? "text-red-600" : "text-green-600"}`}>
-                 {countNullValues(classes) > 0 ? "Incomplete" : "Complete"}
-              </span></h2>
-            {expandedSection1 === "basic" ? <ChevronUp /> : <ChevronDown />}
-          </div>
-          {expandedSection1 === "basic" && (
-            <div className="mt-4 border border-gray-300 rounded-lg p-6">
-              <p className="text-lg text-gray-600">{formatGrade(classes.class_grade)} Branch : {classes.class_name}</p>
-              <label>Size </label>
-              <input type="number" placeholder="Change limit" className="w-full p-2 border border-gray-300 rounded mb-2" value={classes?.class_size || 0} onChange={(e) => setClass({ ...classes, class_size: Number(e.target.value) })} />
-              <label>Description</label>
-              <input type="text" placeholder="Description" className="w-full p-2 border border-gray-300 rounded mb-2" value={classes?.class_description || ""} onChange={(e) => setClass({ ...classes, class_description: e.target.value })} />
-            </div>
-          )}
-          <div className="bg-white text-gray-700 gap-2 p-5 flex justify-between border-b border-white">
-            <button onClick={handleUpdate} className="w-fit bg-green-200 text-green-800 px-4 py-2 rounded hover:bg-green-600 hover:text-white mt-4">
-              {!updateLoading ? 'Update Record' : 'updating..'}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <p className="py-12 text-gray-400">&nbsp;Warning: Deleting a class is permanent and cannot be undone.<br/>
-         Consider removing All student before proceeding.</p>
-      <div className="bg-white text-gray-700 gap-2 p-5 flex justify-between border-b border-white">
-        <button
-          onClick={() => HandleDeleteClass(classes.serial)}
-          className="w-fit bg-gray-600 text-white px-4 py-2 rounded hover:bg-red-500 mt-4"
-        >
-          Delete Class
-        </button>
       </div>
       <p className="py-10">&nbsp;</p>
     </div>

@@ -121,7 +121,7 @@ export default function AddClassPage({ onClassAdded }: AddClassPageProps) {
           onChange={(e) => setForm({ ...form, class_grade: Number(e.target.value) })} required
           disabled={loading}
         >
-          <option value="" disabled>Select Grade</option>
+          <option value="">Select Grade</option>
           <option value="15">Kg </option>
           <option value="13">pre-k1</option>
           <option value="14">pre-k2</option>

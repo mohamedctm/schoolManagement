@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Heading from "@/components/Heading";
 import { Class } from "@/types/class";
-import { ArrowLeft, Plus, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus,Settings, Loader2 } from "lucide-react";
 import ProgressBar from "@/components/progress"
 import Modal from "@/components/Modal";
 import AddClassPage from "@/components/class/AddClass";
 import AddSubjectPage from "@/components/class/AddSubject";
+import AlterClassPage from "@/components/class/AlterClass";
 
 
 
@@ -20,6 +21,7 @@ export default function ClassRoom() {
   const [loading, setLoading] = useState(true);
   const [loadingLink, setLoadingLink] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedClassId, setSelectedClassId] = useState(1);
   const classesPerPage = 20;
   const router = useRouter();
 
@@ -152,14 +154,14 @@ export default function ClassRoom() {
       <div className="flex justify-items-end gap-4 max-w-5xl py-10 items-center mb-4">
       <button onClick={() => setModal("addclass")}
           disabled={loadingLink !== null}
-          className="flex items-center gap-2 bg-blue-200 text-blue-500 hover:bg-blue-600 hover:text-blue-200 px-4 py-2 rounded"
+          className="flex items-center gap-2 bg-orange-200 text-orange-500 hover:bg-orange-600 hover:text-orange-200 px-4 py-2 rounded"
         >
           Add Class
         </button>
       <button
           onClick={() => setModal("addsubject")}
           disabled={loadingLink !== null}
-          className="flex items-center gap-2 bg-blue-200 text-blue-500 hover:bg-blue-600 hover:text-blue-200 px-4 py-2 rounded"
+          className="flex items-center gap-2 bg-orange-200 text-orange-500 hover:bg-orange-600 hover:text-orange-200 px-4 py-2 rounded"
         >
           Add subject
         </button>
@@ -180,24 +182,57 @@ export default function ClassRoom() {
                 .map((classItem) => (
                   <div
                     key={classItem.serial}
-                    className="border border-gray-300 p-4 py-6 min-w-[320px] rounded-lg flex flex-row gap-2"
+                    className="border  border-gray-300 p-4 py-6 min-w-[320px] rounded-lg flex flex-col flex-wrap gap-2"
                   >
+                    <div className="flex flex-row gap-6">
                     <p className="text-xl text-black font-bold">{classItem.class_name}</p>
 
                     <ProgressBar current={classStudentCount[classItem.serial] ?? 0} total={classItem.class_size} />
-
+                    </div>
+                  <div className="flex flex-row justify-start gap-0 w-[99%]">
                     <button
                       onClick={() => {
                         setLoadingLink(`/class/edit/${classItem.serial}`);
                         router.push(`/class/edit/${classItem.serial}`);
                       }}
                       disabled={loadingLink !== null}
-                      className={`flex items-center font-light text-lg justify-center gap-2 bg-blue-200 text-blue-800 px-3 py-1 rounded hover:bg-blue-600 hover:text-white ${
+                      className={`flex items-center font-light text-lg justify-center gap-2 px-3 py-1 rounded border border-gray-300  bg-white text-gray-600  hover:bg-blue-500 hover:text-blue-200 mt-4  ${
                         loadingLink === `/class/edit/${classItem.serial}` ? "opacity-50 cursor-not-allowed" : ""
                       }`}
                     >
-                      {loadingLink === `/class/edit/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : "Manage"}
+                      {loadingLink === `/class/edit/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : <><Plus size={20} /> students</>}
                     </button>
+                    <button
+                      onClick={() => {
+                        setLoadingLink(`/class/subject/${classItem.serial}`);
+                        router.push(`/class/subject/${classItem.serial}`);
+                      }}
+                      disabled={loadingLink !== null}
+                      className={`flex items-center font-light text-lg justify-center gap-2 px-3 py-1 rounded border border-gray-300  bg-white text-gray-600  hover:bg-blue-500 hover:text-blue-200 mt-4  ${
+                        loadingLink === `/class/subject/${classItem.serial}` ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                    >
+                      {loadingLink === `/class/subject/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : <><Plus size={20} /> subject</>}
+                    </button>
+                    <button
+          onClick={() => {setModal("alterclass");
+            setSelectedClassId(classItem.serial);
+          }}
+          disabled={loadingLink !== null}
+          className="w-[30%] bg-white text-gray-600 px-4 py-2 rounded border border-gray-300  hover:bg-blue-500 hover:text-blue-200 mt-4" >
+        <> <Settings size={20}/> </> 
+        </button>
+        {modal === "alterclass" && selectedClassId !== null && (
+  <Modal isOpen onClose={() => setModal(null)}>
+    <AlterClassPage 
+      classid={selectedClassId} 
+      onClassAdded={handleClassAdded} 
+      onClose={() => setModal(null)} // ✅ Close modal after delete
+    />
+  </Modal>
+)}
+
+        </div>
                   </div>
                 ))}
             </div>
