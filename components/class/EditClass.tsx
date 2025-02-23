@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Student } from "@/types/student";
 import { Class } from "@/types/class";
 import Heading from "@/components/Heading";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft,GraduationCap } from "lucide-react";
 
 interface EditStudentFormProps {
   id: string;
@@ -280,25 +280,34 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
   };
   if (loading) return <p>Loading...</p>;
   return !found ? (
-    <p className="text-l text-center py-20 text-gray-500">
-      Student with specified ID not found.<br /> click on dashboard icon
+    <p className="text-center py-10 text-gray-500 text-sm sm:text-base">
+      Student with specified ID not found.<br /> Click on the dashboard icon.
     </p>
   ) : (
-    <div className="p-6 w-full mx-auto py-5 h-screen">
+    <div className="w-full max-w-full mx-auto h-auto overflow-x-hidden">
+      {/* Back Button */}
       <div className="flex justify-between items-center mb-4">
-        <Link href="/class" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
-          <ArrowLeft size={20} /> &nbsp; back to Class
+        <Link href="/class" className="flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
+          <ArrowLeft size={20} /> &nbsp; Back to Class
         </Link>
       </div>
-      <div className="flex justify-between items-center mb-4">
-        <Heading>Manage -  <span>{formatGrade(Number(classes.class_grade))} {classes.class_name}</span></Heading>
+  
+      {/* Page Heading */}
+      <div className="text-left mb-4">
+        <Heading>
+          <span>{formatGrade(Number(classes.class_grade))} {classes.class_name}</span>
+        </Heading>
       </div>
-
-      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-6 justify-center md:justify-start w-[99%]">
-        {/* Unassigned Students List */}
-        <div className="w-full sm:w-full lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-orange-500 mb-4">Assign Students</h2>
-          <div className="flex gap-4 mb-4">
+  
+      {/* Student Assignment Sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        {/* Unassigned Students */}
+        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+          <h2 className="text-lg font-semibold text-cyan-700 mb-4 flex flex-row gap-2"><GraduationCap size={20} /><span>Targeted Students</span></h2>
+  
+          {/* Toggle for Assigning */}
+          <div className="flex justify-center gap-2 mb-4">
             <button
               onClick={() => setShowNeverAssigned(true)}
               className={`px-4 py-2 rounded ${
@@ -316,53 +325,57 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
               Assigned to Other Classes
             </button>
           </div>
-          <div className="mt-4 border border-gray-300 rounded-lg p-6">
-            <p className="text-green-600 text-xl font-normal mb-4"> {message && <span>{message}</span>}</p>
-            <div className="relative h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 p-6 bg-white shadow rounded-lg">
+  
+          {/* Student List */}
+          <div className="border border-gray-300 rounded-lg p-4 sm:p-6">
+            <p className="text-green-600 text-sm sm:text-lg font-normal mb-4">
+              {message && <span>{message}</span>}
+            </p>
+            <div className="relative h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 bg-white shadow rounded-lg">
               {unassignedStudents.map((student) => (
-                <div key={student.id} className="flex items-center mb-4">
+                <div key={student.id} className="flex items-center gap-2 mb-3">
                   <input
                     type="checkbox"
                     checked={selectedStudents.includes(student.id)}
                     onChange={() => handleStudentSelection(student.id)}
-                    className="mr-4"
+                    className="mr-2"
                   />
-                  <span>{student.first_name} {student.last_name}</span>
+                  <span className="text-sm sm:text-base">{student.first_name} {student.last_name}</span>
                 </div>
               ))}
             </div>
             <button
               onClick={handleAssignStudents}
-              className="w-fit bg-blue-200 text-blue-800 px-4 py-2 rounded hover:bg-blue-600 hover:text-white mt-4"
+              className="w-full max-w-[300px] bg-blue-200 text-blue-800 px-4 py-2 rounded hover:bg-blue-600 hover:text-white mt-4"
             >
               Assign Selected Students
             </button>
           </div>
         </div>
-
-        {/* Assigned Students List */}
-        <div className="w-full sm:w-full lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4 text-cyan-700">Assigned Students</h2>
-          <div className="mt-4 border border-gray-300 rounded-lg p-6">
-            <div className="relative h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 p-6 bg-white shadow rounded-lg">
+  
+        {/* Assigned Students */}
+        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+          <h2 className="text-lg font-semibold text-cyan-700 mb-4 flex flex-row gap-2"><GraduationCap size={20} />  <span> students list</span></h2>
+  
+          <div className="border border-gray-300 rounded-lg p-4 sm:p-6">
+            <div className="relative h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 bg-white shadow rounded-lg">
               {assignedStudents.map((student) => (
-                <div key={student.id} className="flex items-center mb-4">
+                <div key={student.id} className="flex items-center gap-2 mb-3">
                   <button
                     onClick={() => HandleDeleteStudent(student.id)}
-                    className="w-fit size-.9 font-medium bg-gray-600 text-white px-4 py-1 rounded hover:bg-red-500 mt-4"
+                    className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-red-500"
                   >
                     &times;
                   </button>
-                  <span className="py-2 px-8">{student.first_name} {student.last_name}</span>
+                  <span className="text-sm sm:text-base">{student.first_name} {student.last_name}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
-
-        {/* Class Information */}
+  
       </div>
-      <p className="py-10">&nbsp;</p>
     </div>
   );
+  
 }

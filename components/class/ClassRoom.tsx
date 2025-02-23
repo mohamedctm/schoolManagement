@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Heading from "@/components/Heading";
 import { Class } from "@/types/class";
-import { ArrowLeft, Plus,Settings, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus,Settings, Loader2, GraduationCap,  } from "lucide-react";
 import ProgressBar from "@/components/progress"
 import Modal from "@/components/Modal";
 import AddClassPage from "@/components/class/AddClass";
@@ -127,10 +127,29 @@ export default function ClassRoom() {
     return `Grade ${grade}`;
   };
   return (
-    <div className="p-6 max-w-[95%] mx-auto my-2 h-auto">
-      {modal === "addclass" && <Modal isOpen onClose={() => setModal(null)}><AddClassPage onClassAdded={handleClassAdded} /></Modal>}
-      {modal === "addsubject" && <Modal isOpen onClose={() => setModal(null)}><AddSubjectPage onClassAdded={handleClassAdded} /></Modal>}
+    <div className="w-full max-w-full mx-auto h-auto overflow-x-hidden">
+      {/* Modals */}
+      {modal === "addclass" && (
+        <Modal isOpen onClose={() => setModal(null)}>
+          <AddClassPage onClassAdded={() => {}} />
+        </Modal>
+      )}
+      {modal === "addsubject" && (
+        <Modal isOpen onClose={() => setModal(null)}>
+          <AddSubjectPage onClassAdded={() => {}} />
+        </Modal>
+      )}
+      {modal === "alterclass" && selectedClassId !== null && (
+        <Modal isOpen onClose={() => setModal(null)}>
+          <AlterClassPage 
+            classid={selectedClassId} 
+            onClassAdded={() => {}} 
+            onClose={() => setModal(null)} 
+          />
+        </Modal>
+      )}
 
+      {/* Top Navigation */}
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => {
@@ -147,100 +166,99 @@ export default function ClassRoom() {
         </button>
       </div>
 
-      <div className="flex justify-between max-w-5xl items-center mb-4">
-        <Heading>Class Room</Heading>
-        
+      {/* Heading */}
+      <div className="text-left mb-4">
+        <Heading>Class Rooms</Heading>
       </div>
-      <div className="flex justify-items-end gap-4 max-w-5xl py-10 items-center mb-4">
-      <button onClick={() => setModal("addclass")}
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-1 justify-start">
+        <button 
+          onClick={() => setModal("addclass")} 
           disabled={loadingLink !== null}
-          className="flex items-center gap-2 bg-orange-200 text-orange-500 hover:bg-orange-600 hover:text-orange-200 px-4 py-2 rounded"
+          className="flex items-center gap-2 rounded border border-gray-300 bg-white text-gray-600 hover:bg-blue-500 hover:text-white px-4 py-2 "
         >
           Add Class
         </button>
-      <button
-          onClick={() => setModal("addsubject")}
+        <button 
+          onClick={() => setModal("addsubject")} 
           disabled={loadingLink !== null}
-          className="flex items-center gap-2 bg-orange-200 text-orange-500 hover:bg-orange-600 hover:text-orange-200 px-4 py-2 rounded"
+          className="flex items-center gap-2 rounded border border-gray-300 bg-white text-gray-600 hover:bg-blue-500 hover:text-white px-4 py-2 "
         >
-          Add subject
+          Add Subject
         </button>
-        
       </div>
-      <div className=" flex flex-row flex-wrap gap-6">
-      {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
-      ) : Object.keys(groupedClasses).length === 0 ? (
-        <p className="text-center text-gray-500">No class found.</p>
-      ) : (
-        Object.entries(groupedClasses).map(([grade, classList]) => (
-          <fieldset key={grade} className="border-2 border-dotted border-b-cyan-700 p-4 rounded-lg">
-            <legend className="text-cyan-800 text-lg font-bold">{formatGrade(Number(grade))}</legend>
-            <div className="flex flex-row flex-wrap gap-6 p-4 rounded-lg">
-              {classList
-                .sort((a, b) => a.class_name.localeCompare(b.class_name)) // Sort by class_name (A, B, C)
-                .map((classItem) => (
-                  <div
-                    key={classItem.serial}
-                    className="border  border-gray-300 p-4 py-6 min-w-[320px] rounded-lg flex flex-col flex-wrap gap-2"
-                  >
-                    <div className="flex flex-row gap-6">
-                    <p className="text-xl text-black font-bold">{classItem.class_name}</p>
 
-                    <ProgressBar current={classStudentCount[classItem.serial] ?? 0} total={classItem.class_size} />
+      {/* Class Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        {Object.entries(groupedClasses).length === 0 ? (
+          <p className="text-center text-gray-500">No class found.</p>
+        ) : (
+          Object.entries(groupedClasses).map(([grade, classList]) => (
+            <fieldset key={grade} className="border-2 border-dotted border-cyan-700 p-4 rounded-lg">
+              <legend className="text-black text-lg font-bold">
+                {formatGrade(Number(grade))}
+              </legend>
+              <div className="flex flex-col gap-4 mx-auto max-w-[460px]">
+                {classList
+                  .sort((a, b) => a.class_name.localeCompare(b.class_name))
+                  .map((classItem) => (
+                    <div 
+                      key={classItem.serial} 
+                      className="border border-gray-300 p-4 rounded-lg flex flex-col gap-2"
+                    >
+                      <div className="flex justify-between items-center">
+                        <p className="text-lg font-bold mx-2">{classItem.class_name}</p>
+                        <ProgressBar 
+                          current={classStudentCount[classItem.serial] ?? 0} 
+                          total={classItem.class_size} 
+                        />
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => {
+                            setLoadingLink(`/class/edit/${classItem.serial}`);
+                            router.push(`/class/edit/${classItem.serial}`);
+                          }}
+                          disabled={loadingLink !== null}
+                          className={`flex items-center font-light gap-2 px-3 py-1 rounded border border-gray-300 bg-white text-gray-600 hover:bg-blue-500 hover:text-white ${
+                            loadingLink === `/class/edit/${classItem.serial}` ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
+                        >
+                          {loadingLink === `/class/edit/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : <><GraduationCap size={20} /> {classStudentCount[classItem.serial] ?? 0}</>}
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setLoadingLink(`/class/subject/${classItem.serial}`);
+                            router.push(`/class/subject/${classItem.serial}`);
+                          }}
+                          disabled={loadingLink !== null}
+                          className={`flex items-center font-light gap-2 px-3 py-1 rounded border border-gray-300 bg-white
+                             text-gray-600 hover:bg-blue-500 hover:text-white`}
+                        >
+                          Subjects
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setModal("alterclass");
+                            setSelectedClassId(classItem.serial);
+                          }}
+                          disabled={loadingLink !== null}
+                          className="bg-white text-gray-600 px-4 py-2 rounded border border-gray-300 hover:bg-blue-500 hover:text-white"
+                        >
+                          <Settings size={20} />
+                        </button>
+                      </div>
                     </div>
-                  <div className="flex flex-row justify-start gap-0 w-[99%]">
-                    <button
-                      onClick={() => {
-                        setLoadingLink(`/class/edit/${classItem.serial}`);
-                        router.push(`/class/edit/${classItem.serial}`);
-                      }}
-                      disabled={loadingLink !== null}
-                      className={`flex items-center font-light text-lg justify-center gap-2 px-3 py-1 rounded border border-gray-300  bg-white text-gray-600  hover:bg-blue-500 hover:text-blue-200 mt-4  ${
-                        loadingLink === `/class/edit/${classItem.serial}` ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                    >
-                      {loadingLink === `/class/edit/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : <><Plus size={20} /> students</>}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setLoadingLink(`/class/subject/${classItem.serial}`);
-                        router.push(`/class/subject/${classItem.serial}`);
-                      }}
-                      disabled={loadingLink !== null}
-                      className={`flex items-center font-light text-lg justify-center gap-2 px-3 py-1 rounded border border-gray-300  bg-white text-gray-600  hover:bg-blue-500 hover:text-blue-200 mt-4  ${
-                        loadingLink === `/class/subject/${classItem.serial}` ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                    >
-                      {loadingLink === `/class/subject/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : <><Plus size={20} /> subject</>}
-                    </button>
-                    <button
-          onClick={() => {setModal("alterclass");
-            setSelectedClassId(classItem.serial);
-          }}
-          disabled={loadingLink !== null}
-          className="w-[30%] bg-white text-gray-600 px-4 py-2 rounded border border-gray-300  hover:bg-blue-500 hover:text-blue-200 mt-4" >
-        <> <Settings size={20}/> </> 
-        </button>
-        {modal === "alterclass" && selectedClassId !== null && (
-  <Modal isOpen onClose={() => setModal(null)}>
-    <AlterClassPage 
-      classid={selectedClassId} 
-      onClassAdded={handleClassAdded} 
-      onClose={() => setModal(null)} // ✅ Close modal after delete
-    />
-  </Modal>
-)}
-
-        </div>
-                  </div>
-                ))}
-            </div>
-          </fieldset>
-        ))
+                  ))}
+              </div>
+            </fieldset>
+          ))
         )}
       </div>
-      <p className="py-12">&nbsp;</p>
     </div>
   );
 }

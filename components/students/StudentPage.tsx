@@ -118,16 +118,23 @@ export default function StudentPage() {
   const [modal, setModal] = useState<string | null>(null);
 
   return (
-
-    <div className="p-6 max-w-4xl mx-auto">
-      {modal === "category" && <Modal isOpen onClose={() => setModal(null)}><AddStudentPage  /></Modal>}
-
+    <div className="w-full max-w-full mx-auto h-auto overflow-x-hidden">
+      {/* Modal for Adding Student */}
+      {modal === "category" && (
+        <Modal isOpen onClose={() => setModal(null)}>
+          <AddStudentPage />
+        </Modal>
+      )}
+  
+      {/* Back to Dashboard */}
       <div className="flex justify-between items-center mb-4">
-      
         <button
-          onClick={() => router.push("/dashboard")}
+          onClick={() => {
+            setLoadingLink("/dashboard");
+            router.push("/dashboard");
+          }}
           disabled={loadingLink !== null}
-          className={`flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900 ${
+          className={`flex items-center text-gray-500 px-3 py-2 rounded hover:bg-red-300 hover:text-red-900 transition ${
             loadingLink === "/dashboard" ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
@@ -135,37 +142,42 @@ export default function StudentPage() {
           &nbsp;Dashboard
         </button>
       </div>
-
-      <div className="flex justify-between items-center mb-4">
-        <Heading>Students</Heading>
+  
+      {/* Page Heading & Add Student */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h1 className="text-xl font-semibold text-gray-800">Students</h1>
+  
         <button
-          // onClick={() => router.push("/students/add")}
           onClick={() => setModal("category")}
-          className="flex items-center gap-2 bg-white text-gray-600 hover:bg-blue-200 hover:text-blue-900 px-4 py-2 rounded"
+          disabled={loadingLink !== null}
+          className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 max-w-[200px] rounded-lg hover:bg-blue-700 transition"
         >
-          <Plus size={20} />
+          {loadingLink === "/students/add" ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
           Add Student
         </button>
       </div>
-
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2 w-[90%]">
-          <Search size={20} className="text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search by student first name or last name..."
-            className="w-full outline-none"
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-          />
+  
+      {/* Search Input */}
+      <div className="flex items-center gap-2 bg-white border border-gray-300 w-full sm:w-auto rounded-lg px-3 py-2 my-3">
+        <Search size={20} className="text-gray-500 max-w-[400px]" />
+        <input
+          type="text"
+          placeholder="Search by first or last name..."
+          className="w-full outline-none text-sm"
+          value={searchQuery}
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+      </div>
+  
+      {/* Pagination (Top) */}
+      {totalPages > 1 && (
+        <div className="flex justify-center my-4">
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
         </div>
-      </div>
-      <div className="flex justify-between items-center mb-4">
-      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}  
-      </div>
-
-
-      <div className="bg-white shadow rounded-lg p-4 py-8 flex-grow overflow-auto flex flex-col gap-4">
+      )}
+  
+      {/* Student List Section */}
+      <div className="bg-white shadow-md rounded-lg p-4 py-6 flex flex-col gap-3 overflow-y-auto max-h-[60vh]">
         {loading ? (
           <p className="text-center text-gray-500">Loading...</p>
         ) : currentStudents.length === 0 ? (
@@ -174,23 +186,26 @@ export default function StudentPage() {
           currentStudents.map((student) => (
             <div
               key={student.id}
-              className="border border-gray-300 p-4 py-6 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+              className="border border-gray-300 p-4 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
             >
-              <div className="flex flex-row flex-wrap md:flex-row md:items-center gap-4">
-                <h2 className="text-lg font-light">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <h2 className="text-base font-medium">
                   {student.first_name} {student.last_name}
                 </h2>
               </div>
-              <div className="flex gap-2 mt-2 md:mt-0">
-              <button
+  
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <button
                   onClick={() => router.push(`/students/assign/${student.id}`)}
-                  className="flex items-center justify-center gap-2 bg-blue-200 text-blue-900 px-3 py-1 rounded hover:bg-blue-700 hover:text-white"
+                  className="flex items-center justify-center gap-2 bg-blue-200 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-600 hover:text-blue-200 transition"
                 >
                   Assign
                 </button>
+  
                 <button
                   onClick={() => router.push(`/students/edit/${student.id}`)}
-                  className="flex items-center justify-center gap-2 bg-green-200 text-green-900 px-3 py-1 rounded hover:bg-green-700 hover:text-white"
+                  className="flex items-center justify-center gap-2 bg-green-200 text-green-700 px-3 py-2 rounded-lg hover:bg-green-700 hover:text-green-200 transition"
                 >
                   Manage
                 </button>
@@ -199,12 +214,15 @@ export default function StudentPage() {
           ))
         )}
       </div>
-
-      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
-      <p className="py-12">&nbsp;</p>
-
+  
+      {/* Pagination (Bottom) */}
+      {totalPages > 1 && (
+        <div className="flex justify-center my-4">
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+        </div>
+      )}
     </div>
-
   );
+  
 }
 
