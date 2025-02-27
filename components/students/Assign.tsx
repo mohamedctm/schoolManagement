@@ -10,11 +10,10 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface EditStudentFormProps {
-  id: string;
+  id: number;
 }
 
 export default function EditStudentForm({ id }: EditStudentFormProps) {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [found, setFound] = useState(true);
@@ -209,28 +208,33 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
 
   if (loading) return <p>Loading...</p>;
   return !found ? (
-    <p className="text-center py-20 text-gray-500">
-      Student not found.<br /> Click on the dashboard icon to return.
-    </p>
+    <p className="text-center text-gray-500 text-lg py-10">Student not found</p>
   ) : (
-    <div className="p-6 max-w-4xl mx-auto h-screen">
-      <div className="flex justify-between items-center mb-4">
-        <Link href="/students" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
-          <ArrowLeft size={20} /> &nbsp; Back to Students
-        </Link>
-      </div>
-      <div className="flex justify-between items-center mb-4">
+    <div className="p-4 w-full max-w-lg mx-auto min-h-20 flex flex-col items-center">
+      {/* Header */}
+      <div className="text-center w-full mb-4">
         <Heading>Assign Student to Class</Heading>
       </div>
-    <p className="text-lg text-yellow-700 px-5">current grade : {Number(currentAssignment.class_grade)} {currentAssignment.class_name}</p>
-      <p className="text-green-600 text-xl font-normal mb-4">{message && <span>{message}</span>}</p>
-
-      <form onSubmit={handleSubmit} className="bg-white w-[94%] md:w-[80%] sm:w-full shadow rounded-lg p-6">
-        <label className="block text-green-800 text-lg font-medium mb-4">
+  
+      {/* Current Grade Information */}
+      <p className="text-yellow-700 text-lg font-semibold text-center mb-2">
+        Current Grade: {Number(currentAssignment.class_grade)} {currentAssignment.class_name}
+      </p>
+  
+      {/* Status Message */}
+      {message && (
+        <p className="text-green-700 text-center text-lg font-medium mb-4">{message}</p>
+      )}
+  
+      {/* Assignment Form */}
+      <form onSubmit={handleSubmit} className="w-full bg-white shadow-md rounded-lg p-2 flex flex-col">
+        <label className="block text-green-800 text-lg font-medium mb-2 text-center">
           Assign Class to {student?.first_name} {student?.last_name}
         </label>
+  
+        {/* Class Selection */}
         <select
-          className="w-full p-2 border border-gray-300 rounded mb-2"
+          className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400 transition"
           value={selectedClass ?? ""}
           onChange={(e) => setSelectedClass(Number(e.target.value) || null)}
           required
@@ -243,11 +247,19 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
             </option>
           ))}
         </select>
-
-        <button type="submit" className={`w-full flex justify-center items-center gap-2 bg-green-200 text-lg text-green-800 px-4 py-2 rounded hover:bg-green-600 hover:text-white transition ${updateLoading ? "opacity-50 cursor-not-allowed" : ""}`} disabled={updateLoading}>
+  
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className={`w-full flex justify-center items-center gap-2 bg-green-700 text-green-100 text-lg py-3 mt-4 rounded-lg hover:bg-green-600 transition ${
+            updateLoading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={updateLoading}
+        >
           {updateLoading ? <Loader2 className="animate-spin" size={20} /> : "Assign Student"}
         </button>
       </form>
     </div>
   );
+  
 }

@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Student, Parents, Medical } from "@/types/student";
 import Heading from "@/components/Heading";
-import { ArrowLeft, Plus, Upload, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import countries from "world-countries";
 import { useRouter } from "next/navigation";
 
@@ -65,11 +65,12 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
   const [student, setStudent] = useState<Student>(initialStudentState);
   const [parents, setParents] = useState<Parents>(initialParentsState);
   const [medical, setMedical] = useState<Medical>(initialMedicalState);
-  const [expandedSection1, setExpandedSection1] = useState<string | null>("basic"); // Set "basic" as default expanded section
-  const [expandedSection2, setExpandedSection2] = useState<string | null>("parent1"); // Set "basic" as default expanded section
-  const [expandedSection3, setExpandedSection3] = useState<string | null>("parent2"); // Set "basic" as default expanded section
-  const [expandedSection4, setExpandedSection4] = useState<string | null>("additional"); // Set "basic" as default expanded section
-  const [expandedSection5, setExpandedSection5] = useState<string | null>("medical"); // Set "basic" as default expanded section
+  const [loadingLink, setLoadingLink] = useState<string | null>(null);
+  const [expandedSection1, setExpandedSection1] = useState<string | null>(""); // Set "basic" as default expanded section
+  const [expandedSection2, setExpandedSection2] = useState<string | null>(""); // Set "basic" as default expanded section
+  const [expandedSection3, setExpandedSection3] = useState<string | null>(""); // Set "basic" as default expanded section
+  const [expandedSection4, setExpandedSection4] = useState<string | null>(""); // Set "basic" as default expanded section
+  const [expandedSection5, setExpandedSection5] = useState<string | null>(""); // Set "basic" as default expanded section
 
   const toggleSection1 = (section: string) => {
     setExpandedSection1(expandedSection1 === section ? null : section);
@@ -84,7 +85,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
     setExpandedSection4(expandedSection4 === section ? null : section);
   };
     const toggleSection5 = (section: string) => {
-    setExpandedSection4(expandedSection5 === section ? null : section);
+    setExpandedSection5(expandedSection5 === section ? null : section);
   };
 
   useEffect(() => {
@@ -302,63 +303,66 @@ function countNullValues(record: Record<string, any>) {
   if (loading) return <p>Loading...</p>;
   return !found ? (
     <p className="text-l text-center py-20 text-gray-500">
-      Student with specified ID not found.<br /> click on dashboard icon
+      Student with specified ID not found.<br /> Click on the dashboard icon.
     </p>
   ) : (
-    <div className="p-6 w-full mx-auto py-5 h-screen">
-      <div className="flex justify-between items-center mb-4">
-        <Link href="/students" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
-          <ArrowLeft size={20} /> &nbsp; back to Students
-        </Link>
+    <div className="p-4 max-w-[90%] mx-auto min-h-screen overflow-y-auto">
+      {/* Back Button */}
+      <div className="flex justify-between items-center mb-6">
+      <button
+          onClick={() => {
+            setLoadingLink("/students");
+            router.push("/students");
+          }}
+          disabled={loadingLink !== null}
+          className={`flex items-center text-gray-500 px-3 py-2 rounded hover:bg-red-300 hover:text-red-900 transition ${
+            loadingLink === "/dashboard" ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {loadingLink === "/students" ? <Loader2 className="animate-spin" size={20} /> : <ArrowLeft size={20} />}
+          &nbsp;back to students
+        </button>
       </div>
-      <div className="flex justify-between items-center mb-4">
-        <Heading>Edit Student</Heading>
+  
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Edit Student</h1>
       </div>
-
-      <p className="text-green-600 text-xl font-normal mb-4"> {message && <span>{message}</span>}</p>
-
+  
+      {/* Message Display */}
+      {message && (
+        <p className="text-green-600 text-lg font-medium mb-6">{message}</p>
+      )}
+  
       {/* Update Button at the Top */}
-      <button onClick={handleUpdate} className="w-fit bg-green-200 text-green-800 px-4 py-2 rounded hover:bg-green-600 hover:text-white mt-4">
-        {!updateLoading ? 'Update Student' : 'updating..'}
+      <button onClick={handleUpdate} className="w-full sm:w-fit bg-green-700 text-green-100 px-6 py-3 rounded-lg hover:bg-green-600 transition duration-300 mb-6">
+        {!updateLoading ? 'Update Student' : 'Updating...'}
       </button>
-
-      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-6 justify-center md:justify-start w-[95%]">
-      {/* Basic Info */}
-      <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-      <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection1("basic")}>
-            <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
-              expandedSection1 === "basic" ? "text-black " : "text-gray-500"
-            }`}>Basic Information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
-                ${countNullValues(student) > 0 ? "text-red-600" : "text-green-600"}`}>
-                 {countNullValues(student) > 0 ? "Incomplete" : "Complete"}
-              </span></h2>
-            {expandedSection1 === "basic" ? <ChevronUp /> : <ChevronDown />}
+  
+      {/* Sections */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Basic Information Section */}
+        <div className="bg-white shadow-lg border border-gray-300 rounded-lg p-6">
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection1("basic")}>
+            <h2 className={`text-lg font-medium ${expandedSection1 === "basic" ? 'text-green-800' : 'text-gray-500'}`}>
+              Basic Information <span className={`ml-2 ${countNullValues(student) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {countNullValues(student) > 0 ? 'Incomplete' : 'Complete'}
+              </span>
+            </h2>
+            {expandedSection1 === "basic" ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
           {expandedSection1 === "basic" && (
-            <div className="mt-4 border border-gray-300 rounded-lg p-6">
-              <label className="block text-green-800 font-medium mb-1">&nbsp;First name</label>
-              <input type="text" placeholder="First name" className="w-full p-2 border border-gray-300 rounded mb-2" value={student?.first_name || ""} onChange={(e) => setStudent({ ...student, first_name: e.target.value })} />
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Middle name</label>
-              <input type="text" placeholder="middle name" className="w-full p-2 border border-gray-300 rounded mb-2" value={student?.middle_name || ""} onChange={(e) => setStudent({ ...student, middle_name: e.target.value })} />
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Last name</label>
-              <input type="text" placeholder="Last name" className="w-full p-2 border border-gray-300 rounded mb-2" value={student?.last_name || ""} onChange={(e) => setStudent({ ...student, last_name: e.target.value })} />
-              <div className="w-full mt-4 mb-4">
-                <label className="block text-green-800 font-medium mb-1">&nbsp;Date of Birth</label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={student.birth_date || ""}
-                    onChange={(e) => setStudent({ ...student, birth_date: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <span className="absolute inset-y-0 right-3 flex items-center text-gray-400 pointer-events-none">
-                    📅
-                  </span>
-                </div>
-              </div>
-
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Gender</label>
-              <select className="w-full p-2 border border-gray-300 rounded mb-2" value={student?.gender || ""} onChange={(e) => setStudent({ ...student, gender: e.target.value })} required>
+            <div className="mt-4 space-y-4">
+              <label className="block text-gray-700 font-medium">First Name</label>
+              <input type="text" placeholder="First name" className="w-full p-3 border border-gray-300 rounded-lg" value={student?.first_name || ""} onChange={(e) => setStudent({ ...student, first_name: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Middle Name</label>
+              <input type="text" placeholder="Middle name" className="w-full p-3 border border-gray-300 rounded-lg" value={student?.middle_name || ""} onChange={(e) => setStudent({ ...student, middle_name: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Last Name</label>
+              <input type="text" placeholder="Last name" className="w-full p-3 border border-gray-300 rounded-lg" value={student?.last_name || ""} onChange={(e) => setStudent({ ...student, last_name: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Date of Birth</label>
+              <input type="date" className="w-full p-3 border border-gray-300 rounded-lg" value={student.birth_date || ""} onChange={(e) => setStudent({ ...student, birth_date: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Gender</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg" value={student?.gender || ""} onChange={(e) => setStudent({ ...student, gender: e.target.value })} required>
                 <option value="" disabled>Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -366,47 +370,42 @@ function countNullValues(record: Record<string, any>) {
             </div>
           )}
         </div>
-
-        {/* Parent 1 Info */}
-        <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-        <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection2("parent1")}>
-            <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
-              expandedSection2 === "parent1" ? "text-black " : "text-gray-500"
-            }`}>Parent 1 information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
-                ${countNullValues(fatherRecord) > 0 ? "text-red-600" : "text-green-600"}`}>
-                 {countNullValues(fatherRecord) > 0 ? "Incomplete" : "Complete"}
-              </span></h2>
-            {expandedSection2 === "parent1" ? <ChevronUp /> : <ChevronDown />}
+  
+        {/* Parent 1 Information Section */}
+        <div className="bg-white shadow-lg border border-gray-300 rounded-lg p-6">
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection2("parent1")}>
+            <h2 className={`text-lg font-medium ${expandedSection2 === "parent1" ? 'text-green-800' : 'text-gray-500'}`}>
+              Parent 1 Information <span className={`ml-2 ${countNullValues(fatherRecord) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {countNullValues(fatherRecord) > 0 ? 'Incomplete' : 'Complete'}
+              </span>
+            </h2>
+            {expandedSection2 === "parent1" ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
           {expandedSection2 === "parent1" && (
-            <div className="mt-4 border border-gray-300 rounded-lg p-6">
-              <label className="block text-green-800 font-medium mb-1">&nbsp;First name</label>
-              <input type="text" placeholder="first name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.parent_one_first_name || ""} onChange={(e) => setParents({ ...parents, parent_one_first_name: String(e.target.value) })} />
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Last name</label>
-              <input type="text" placeholder="last name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.parent_one_last_name || ""} onChange={(e) => setParents({ ...parents, parent_one_last_name: String(e.target.value) })} />
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Martial Status</label>
-              <select className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.parent_one_status || ""} onChange={(e) => setParents({ ...parents, parent_one_status: e.target.value })} >
-                <option value="" disabled>Martial Status</option>
+            <div className="mt-4 space-y-4">
+              <label className="block text-gray-700 font-medium">First Name</label>
+              <input type="text" placeholder="First name" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.parent_one_first_name || ""} onChange={(e) => setParents({ ...parents, parent_one_first_name: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Last Name</label>
+              <input type="text" placeholder="Last name" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.parent_one_last_name || ""} onChange={(e) => setParents({ ...parents, parent_one_last_name: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Martial Status</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.parent_one_status || ""} onChange={(e) => setParents({ ...parents, parent_one_status: e.target.value })}>
+                <option value="" disabled>Select Status</option>
                 <option value="Single">Single</option>
                 <option value="Married">Married</option>
                 <option value="Divorced">Divorced</option>
               </select>
-              <label className="block text-green-800 font-medium mb-1">&nbsp;phone number</label>
-              <input type="text" placeholder="contact number 1" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.phone_number1 || ""} onChange={(e) => setParents({ ...parents, phone_number1: String(e.target.value) })} />
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Nationality</label>
-              <select className="w-full p-2 border border-gray-300 rounded mb-2"
-                value={parents?.parent_one_nationality || ""}
-                onChange={(e) => setParents({ ...parents, parent_one_nationality: e.target.value })} >
+              <label className="block text-gray-700 font-medium">Phone Number</label>
+              <input type="text" placeholder="Phone number" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.phone_number1 || ""} onChange={(e) => setParents({ ...parents, phone_number1: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Nationality</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.parent_one_nationality || ""} onChange={(e) => setParents({ ...parents, parent_one_nationality: e.target.value })}>
                 <option value="" disabled>Select Nationality</option>
                 {countries.map((country) => (
-                  <option key={country.cca2} value={country.name.common}>
-                    {country.name.common}
-                  </option>
+                  <option key={country.cca2} value={country.name.common}>{country.name.common}</option>
                 ))}
               </select>
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Residential Status</label>
-              <select className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.parent_one_residency_status || ""} onChange={(e) => setParents({ ...parents, parent_one_residency_status: e.target.value })} >
-                <option value="" disabled>Residency Status</option>
+              <label className="block text-gray-700 font-medium">Residency Status</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.parent_one_residency_status || ""} onChange={(e) => setParents({ ...parents, parent_one_residency_status: e.target.value })}>
+                <option value="" disabled>Select Residency Status</option>
                 <option value="Citizen">Citizen</option>
                 <option value="Resident">Resident</option>
                 <option value="Refugee">Refugee</option>
@@ -414,47 +413,42 @@ function countNullValues(record: Record<string, any>) {
             </div>
           )}
         </div>
-
-        {/* Parent 2 Info */}
-        <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-        <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection3("parent2")}>
-            <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
-              expandedSection3 === "parent2" ? "text-black " : "text-gray-500"
-            }`}>Parent 2 information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
-                ${countNullValues(motherRecord) > 0 ? "text-red-600" : "text-green-600"}`}>
-                 {countNullValues(motherRecord) > 0 ? "Incomplete" : "Complete"}
-              </span></h2>
-            {expandedSection3 === "parent2" ? <ChevronUp /> : <ChevronDown />}
+  
+        {/* Parent 2 Information Section */}
+        <div className="bg-white shadow-lg border border-gray-300 rounded-lg p-6">
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection3("parent2")}>
+            <h2 className={`text-lg font-medium ${expandedSection3 === "parent2" ? 'text-green-800' : 'text-gray-500'}`}>
+              Parent 2 Information <span className={`ml-2 ${countNullValues(motherRecord) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {countNullValues(motherRecord) > 0 ? 'Incomplete' : 'Complete'}
+              </span>
+            </h2>
+            {expandedSection3 === "parent2" ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
           {expandedSection3 === "parent2" && (
-            <div className="mt-4 border border-gray-300 rounded-lg p-6">
-              <label className="block text-green-800 font-medium mb-1">&nbsp;First name</label>
-              <input type="text" placeholder="first name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.parent_two_first_name || ""} onChange={(e) => setParents({ ...parents, parent_two_first_name: String(e.target.value) })} />
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Last name </label>
-              <input type="text" placeholder="last name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.parent_two_last_name || ""} onChange={(e) => setParents({ ...parents, parent_two_last_name: String(e.target.value) })} />
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Martial Status</label>
-              <select className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.parent_two_status || ""} onChange={(e) => setParents({ ...parents, parent_two_status: e.target.value })} >
-                <option value="" disabled>Martial Status</option>
+            <div className="mt-4 space-y-4">
+              <label className="block text-gray-700 font-medium">First Name</label>
+              <input type="text" placeholder="First name" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.parent_two_first_name || ""} onChange={(e) => setParents({ ...parents, parent_two_first_name: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Last Name</label>
+              <input type="text" placeholder="Last name" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.parent_two_last_name || ""} onChange={(e) => setParents({ ...parents, parent_two_last_name: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Martial Status</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.parent_two_status || ""} onChange={(e) => setParents({ ...parents, parent_two_status: e.target.value })}>
+                <option value="" disabled>Select Status</option>
                 <option value="Single">Single</option>
                 <option value="Married">Married</option>
                 <option value="Divorced">Divorced</option>
               </select>
-              <label className="block text-green-800 font-medium mb-1">&nbsp;phone number</label>
-              <input type="text" placeholder="contact number 1" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.phone_number2 || ""} onChange={(e) => setParents({ ...parents, phone_number2: String(e.target.value) })} />
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Nationality</label>
-              <select className="w-full p-2 border border-gray-300 rounded mb-2"
-                value={parents?.parent_two_nationality || ""}
-                onChange={(e) => setParents({ ...parents, parent_two_nationality: e.target.value })} >
+              <label className="block text-gray-700 font-medium">Phone Number</label>
+              <input type="text" placeholder="Phone number" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.phone_number2 || ""} onChange={(e) => setParents({ ...parents, phone_number2: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Nationality</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.parent_two_nationality || ""} onChange={(e) => setParents({ ...parents, parent_two_nationality: e.target.value })}>
                 <option value="" disabled>Select Nationality</option>
                 {countries.map((country) => (
-                  <option key={country.cca2} value={country.name.common}>
-                    {country.name.common}
-                  </option>
+                  <option key={country.cca2} value={country.name.common}>{country.name.common}</option>
                 ))}
               </select>
-              <label className="block text-green-800 font-medium mb-1">&nbsp;Residential Status</label>
-              <select className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.parent_two_residency_status || ""} onChange={(e) => setParents({ ...parents, parent_two_residency_status: e.target.value })} >
-                <option value="" disabled>Residency Status</option>
+              <label className="block text-gray-700 font-medium">Residency Status</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.parent_two_residency_status || ""} onChange={(e) => setParents({ ...parents, parent_two_residency_status: e.target.value })}>
+                <option value="" disabled>Select Residency Status</option>
                 <option value="Citizen">Citizen</option>
                 <option value="Resident">Resident</option>
                 <option value="Refugee">Refugee</option>
@@ -462,134 +456,86 @@ function countNullValues(record: Record<string, any>) {
             </div>
           )}
         </div>
- {/* medical Info */}
- <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-      <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection5("medical")}>
-            <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
-              expandedSection5 === "medical" ? "text-black " : "text-gray-500"
-            }`}>Health Information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
-                ${countNullValues(medical) > 0 ? "text-red-600" : "text-green-600"}`}>
-                 {countNullValues(medical) > 0 ? "Incomplete" : "Complete"}
-              </span></h2>
-            {expandedSection5 === "medical" ? <ChevronUp /> : <ChevronDown />}
+  
+        {/* Additional Information Section */}
+        <div className="bg-white shadow-lg border border-gray-300 rounded-lg p-6">
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection4("additional")}>
+            <h2 className={`text-lg font-medium ${expandedSection4 === "additional" ? 'text-green-800' : 'text-gray-500'}`}>
+              Additional Information <span className={`ml-2 ${countNullValues(additional) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {countNullValues(additional) > 0 ? 'Incomplete' : 'Complete'}
+              </span>
+            </h2>
+            {expandedSection4 === "additional" ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
-          {expandedSection5 === "medical" && (
-            <div className="mt-4 border border-gray-300 rounded-lg p-6">
-               {/* Health Issues Checkbox */}
-        <label className="flex items-center py-6 gap-2">
-          <input
-            type="checkbox"
-            name="has_health_issues"
-            checked={medical.has_health_issues}
-            onChange={(e) => setMedical({ ...medical, has_health_issues: e.target.checked })} 
-            className="h-5 w-5 py-6"
-          />
-          Has Health Issues
-        </label>
-
-        {/* Chronic Diseases */}
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="has_chronic_diseases"
-            checked={medical.has_chronic_diseases}
-            onChange={(e) => setMedical({ ...medical, has_chronic_diseases: e.target.checked })} 
-            className="h-8 w-5 py-6"
-          />
-          Has Chronic Diseases
-        </label>
-        {medical.has_chronic_diseases && (
-          <select className="w-full p-2 border border-gray-300 rounded mb-2" value={medical?.chronic_diseases || ""} onChange={(e) => setMedical({ ...medical, chronic_diseases: e.target.value })} >
-          <option value="" disabled>select from the list</option>
-          {CHRONIC_DISEASES_LIST.map((disease) => (
-              <option key={disease} value={disease}>
-                {disease}
-              </option>
-            ))}
-
-        </select>
-        )}
-
-        {/* Allergies */}
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="has_allergies"
-            checked={medical.has_allergies}
-            onChange={(e) => setMedical({ ...medical, has_allergies: e.target.checked })} 
-            className="h-8 w-5 py-6"
-          />
-          Has Allergies
-        </label>
-        {medical.has_allergies && (
-          <textarea
-            name="allergies"
-            placeholder="List allergies"
-            value={medical?.allergies || ""}
-            onChange={(e) => setMedical({ ...medical, allergies: e.target.value })} 
-            className="w-full p-2 border border-gray-300 py-6 mb-2 rounded"
-            required
-          />
-        )}
-
-        {/* Medication */}
-        <label className="block">
-          <span className="font-medium">Medication</span>
-          <textarea
-            name="medication"
-            placeholder="List any medications"
-            value={medical?.medication || ""}
-            onChange={(e) => setMedical({ ...medical, medication: e.target.value })} 
-            className="w-full p-2 border border-gray-300 py-2 mb-2 rounded"
-          />
-        </label>
+          {expandedSection4 === "additional" && (
+            <div className="mt-4 space-y-4">
+              <label className="block text-gray-700 font-medium">Address</label>
+              <textarea placeholder="Address" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.address || ""} onChange={(e) => setParents({ ...parents, address: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Address Country</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.address_country || ""} onChange={(e) => setParents({ ...parents, address_country: e.target.value })}>
+                <option value="" disabled>Select Country</option>
+                {countries.map((country) => (
+                  <option key={country.cca2} value={country.name.common}>{country.name.common}</option>
+                ))}
+              </select>
+              <h2 className="text-lg font-medium text-gray-700">Emergency Contact</h2>
+              <label className="block text-gray-700 font-medium">First Name</label>
+              <input type="text" placeholder="First name" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.emergency_fname || ""} onChange={(e) => setParents({ ...parents, emergency_fname: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Last Name</label>
+              <input type="text" placeholder="Last name" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.emergency_lname || ""} onChange={(e) => setParents({ ...parents, emergency_lname: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Relation to Student</label>
+              <input type="text" placeholder="Relation" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.relation || ""} onChange={(e) => setParents({ ...parents, relation: e.target.value })} />
+              <label className="block text-gray-700 font-medium">Emergency Contact Number</label>
+              <input type="text" placeholder="Emergency contact number" className="w-full p-3 border border-gray-300 rounded-lg" value={parents?.emergency_number || ""} onChange={(e) => setParents({ ...parents, emergency_number: e.target.value })} />
             </div>
           )}
         </div>
-        {/* Additional Info */}
-
-        <div className="w-full sm:w-[48%] lg:w-[35%] bg-white shadow-lg rounded-lg p-6">
-        <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection4("additional")}>
-            <h2 className={`w-fit px-4 py-2 rounded mt-4 transition  ${
-              expandedSection4 === "additional" ? "text-black " : "text-gray-500"
-            }`}>additional information <span className={`w-fit px-4 py-2 rounded mt-4 transition 
-                ${countNullValues(additional) > 0 ? "text-red-600" : "text-green-600"}`}>
-                 {countNullValues(additional) > 0 ? "Incomplete" : "Complete"}
-              </span></h2>
-            {expandedSection4 === "additional" ? <ChevronUp /> : <ChevronDown />}
+  
+        {/* Medical Information Section */}
+        <div className="bg-white shadow-lg border border-gray-300 rounded-lg p-6">
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection5("medical")}>
+            <h2 className={`text-lg font-medium ${expandedSection5 === "medical" ? 'text-green-800' : 'text-gray-500'}`}>
+              Health Information <span className={`ml-2 ${countNullValues(medical) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {countNullValues(medical) > 0 ? 'Incomplete' : 'Complete'}
+              </span>
+            </h2>
+            {expandedSection5 === "medical" ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
-          {expandedSection4 === "additional" && (
-            <div className="mt-4 border border-gray-300 rounded-lg p-6">
-          <label className="block text-green-800 font-medium mb-1">&nbsp;Address Line 1</label>
-          <textarea placeholder="Address" className="w-full p-2 border h-35 py-3 border-gray-300 rounded mb-2" value={parents?.address || ""} onChange={(e) => setParents({ ...parents, address: e.target.value })} />
-          <label className="block text-green-800 font-medium mb-1">&nbsp;Address country</label>
-          <select className="w-full p-2 border border-gray-300 rounded mb-2" 
-          value={parents?.address_country || ""}
-          onChange={(e) => setParents({ ...parents, address_country: e.target.value })} >
-            <option value="" disabled></option>
-            {countries.map((country) => (
-        <option key={country.cca2} value={country.name.common}>
-          {country.name.common}
-        </option>
-      ))}
-          </select>
-          <h2 className="py-4 text-lg text-yellow-700">Emergency contact</h2>
-          <label className="block text-green-800 font-medium mb-1">&nbsp;First name</label>
-          <input type="text" placeholder="first name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.emergency_fname || ""} onChange={(e) => setParents({ ...parents, emergency_fname: String(e.target.value) })} />
-          <label className="block text-green-800 font-medium mb-1">&nbsp;Last name</label>
-          <input type="text" placeholder="last name" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.emergency_lname || ""} onChange={(e) => setParents({ ...parents, emergency_lname: String(e.target.value) })} />
-          <label className="block text-green-800 font-medium mb-1">&nbsp;Relation to student</label>
-          <input type="text" placeholder="relation" className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.relation || ""} onChange={(e) => setParents({ ...parents, relation: String(e.target.value) })} />
-         <label className="block text-green-800 font-medium mb-1">&nbsp;Contact number </label>
-          <input type="text" placeholder="Emergency contact number " className="w-full p-2 border border-gray-300 rounded mb-2" value={parents?.emergency_number || ""} onChange={(e) => setParents({ ...parents, emergency_number: String(e.target.value) })} />
-      </div>)}
+          {expandedSection5 === "medical" && (
+            <div className="mt-4 space-y-4">
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={medical.has_health_issues} onChange={(e) => setMedical({ ...medical, has_health_issues: e.target.checked })} className="h-5 w-5" />
+                Has Health Issues
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={medical.has_chronic_diseases} onChange={(e) => setMedical({ ...medical, has_chronic_diseases: e.target.checked })} className="h-5 w-5" />
+                Has Chronic Diseases
+              </label>
+              {medical.has_chronic_diseases && (
+                <select className="w-full p-3 border border-gray-300 rounded-lg" value={medical?.chronic_diseases || ""} onChange={(e) => setMedical({ ...medical, chronic_diseases: e.target.value })}>
+                  <option value="" disabled>Select Chronic Disease</option>
+                  {CHRONIC_DISEASES_LIST.map((disease) => (
+                    <option key={disease} value={disease}>{disease}</option>
+                  ))}
+                </select>
+              )}
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={medical.has_allergies} onChange={(e) => setMedical({ ...medical, has_allergies: e.target.checked })} className="h-5 w-5" />
+                Has Allergies
+              </label>
+              {medical.has_allergies && (
+                <textarea placeholder="List allergies" className="w-full p-3 border border-gray-300 rounded-lg" value={medical?.allergies || ""} onChange={(e) => setMedical({ ...medical, allergies: e.target.value })} />
+              )}
+              <label className="block text-gray-700 font-medium">Medication</label>
+              <textarea placeholder="List any medications" className="w-full p-3 border border-gray-300 rounded-lg" value={medical?.medication || ""} onChange={(e) => setMedical({ ...medical, medication: e.target.value })} />
+            </div>
+          )}
         </div>
       </div>
-
+  <div>
       {/* Update Button at the Bottom */}
-      <div className="bg-white text-gray-700 gap-2 p-5 flex justify-between border-b border-white">
-      <button onClick={handleUpdate} className="w-fit bg-green-200 text-green-800 px-4 py-2 rounded hover:bg-green-600 hover:text-white mt-4">
-      {!updateLoading? 'Update Student': 'updating..'}
+      <button onClick={handleUpdate} className="w-full sm:w-fit bg-green-700 text-green-200 px-6 py-3 rounded-lg hover:bg-green-600 transition duration-300 mt-6">
+        {!updateLoading ? 'Update Student': 'updating..'}
       </button>
                 </div>
       <p className="py-12 text-gray-400">&nbsp;Warning: Deleting a student is permanent and cannot be undone.<br/>
@@ -613,6 +559,5 @@ function countNullValues(record: Record<string, any>) {
                 </div>
                 <p className="py-10">&nbsp;</p>
     </div>
-    
   );
 }

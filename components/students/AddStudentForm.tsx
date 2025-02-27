@@ -111,8 +111,8 @@ export default function AddStudentPage() {
         </button>
       </div> */}
 
-      <div className="flex justify-between items-center mb-4">
-        <Heading>Add Student</Heading>
+<div className="text-center w-full mb-4">
+<Heading>Add Student</Heading>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6">
@@ -157,7 +157,7 @@ export default function AddStudentPage() {
         
         <button 
           type="submit" 
-          className={`w-full flex justify-center items-center gap-2 bg-green-200 text-lg text-green-800 px-4 py-2 rounded hover:bg-green-600 hover:text-green-100 transition ${
+          className={`w-full flex justify-center items-center gap-2 bg-green-700 text-lg text-green-100 px-4 py-2 rounded hover:bg-green-600 hover:text-green-100 transition ${
             loading ? "opacity-50 cursor-not-allowed" : ""
           }`}
           disabled={loading}

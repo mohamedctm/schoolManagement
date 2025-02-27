@@ -7,14 +7,15 @@ import Heading from "@/components/Heading";
 import { Student } from "@/types/student";
 import {Pagination} from "@/components/paging";
 
-import { ArrowLeft, Plus, Search, Loader2} from "lucide-react";
+import { ArrowLeft, Plus, Search, Loader2,UserCheck, Settings,UserPlus} from "lucide-react";
 import Modal from "@/components/Modal";
 import AddStudentPage from "@/components/students/AddStudentForm";
-
-
+import Assign from "@/components/students/Assign"
 export default function StudentPage() {
 
   const [students, setStudents] = useState<Student[]>([]);
+  const [currentid, setCurrentid] = useState<number>(0);
+
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -120,11 +121,12 @@ export default function StudentPage() {
   return (
     <div className="w-full max-w-full mx-auto h-auto overflow-x-hidden">
       {/* Modal for Adding Student */}
-      {modal === "category" && (
+      {modal === "addstudent" && (
         <Modal isOpen onClose={() => setModal(null)}>
           <AddStudentPage />
         </Modal>
       )}
+      
   
       {/* Back to Dashboard */}
       <div className="flex justify-between items-center mb-4">
@@ -144,17 +146,21 @@ export default function StudentPage() {
       </div>
   
       {/* Page Heading & Add Student */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <h1 className="text-xl font-semibold text-gray-800">Students</h1>
-  
+      <div className="flex flex-row gap-3 sm:flex-row sm:items-left sm:justify-left sm:gap-8">
+        <Heading>Students</Heading>
+  <div className="relative group">
         <button
-          onClick={() => setModal("category")}
+          onClick={() => setModal("addstudent")}
           disabled={loadingLink !== null}
-          className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 max-w-[200px] rounded-lg hover:bg-blue-700 transition"
+          className="flex items-center gap-2 bg-blue-200 text-blue-700 px-4 py-2 max-w-[200px] rounded-lg hover:bg-blue-700 hover:text-blue-200 transition"
         >
           {loadingLink === "/students/add" ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
-          Add Student
+          <UserPlus size={20} />
         </button>
+        <span className="absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 bg-yellow-400 text-orange-900 text-s rounded-lg px-3 p-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+    Add student
+  </span>
+                </div>
       </div>
   
       {/* Search Input */}
@@ -177,17 +183,23 @@ export default function StudentPage() {
       )}
   
       {/* Student List Section */}
-      <div className="bg-white shadow-md rounded-lg p-4 py-6 flex flex-col gap-3 overflow-y-auto max-h-[60vh]">
+      <div className="bg-white shadow-md rounded-lg p-4 py-6 flex flex-col gap-3 overflow-y-auto min-h-screen">
         {loading ? (
           <p className="text-center text-gray-500">Loading...</p>
         ) : currentStudents.length === 0 ? (
           <p className="text-center text-gray-500">No students found.</p>
         ) : (
           currentStudents.map((student) => (
+            
             <div
               key={student.id}
-              className="border border-gray-300 p-4 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+              className="border-b border-b-gray-300 p-4 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
             >
+              {modal === "assign" && (
+        <Modal isOpen onClose={() => setModal(null)}>
+          <Assign id={currentid} />
+        </Modal>
+      )}
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <h2 className="text-base font-medium">
                   {student.first_name} {student.last_name}
@@ -195,20 +207,30 @@ export default function StudentPage() {
               </div>
   
               {/* Action Buttons */}
+              
               <div className="flex gap-2">
+              <div className="relative group">
                 <button
-                  onClick={() => router.push(`/students/assign/${student.id}`)}
-                  className="flex items-center justify-center gap-2 bg-blue-200 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-600 hover:text-blue-200 transition"
+          onClick={() => {setModal("assign"); setCurrentid(student.id)}}
+          className="flex items-center justify-center gap-2 bg-blue-200 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-600 hover:text-blue-200 transition"
                 >
-                  Assign
+                  <UserCheck size={20} />
                 </button>
-  
+                <span className="absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 bg-yellow-400 text-orange-900 text-s rounded-lg px-3 p-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+    Assign to class
+  </span>
+                </div>
+                <div className="relative group">
                 <button
                   onClick={() => router.push(`/students/edit/${student.id}`)}
                   className="flex items-center justify-center gap-2 bg-green-200 text-green-700 px-3 py-2 rounded-lg hover:bg-green-700 hover:text-green-200 transition"
                 >
-                  Manage
+                  <Settings size={20} />
                 </button>
+                <span className="absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 bg-yellow-400 text-orange-900 text-s rounded-lg px-3 p-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+    Manage
+  </span>
+                </div>
               </div>
             </div>
           ))

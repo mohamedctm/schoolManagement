@@ -25,7 +25,8 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
     email:"",
     username: "",
     password: "",
-    position: ""
+    position: "",
+    level:""
   });
 
   useEffect(() => {

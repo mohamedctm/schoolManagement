@@ -20,5 +20,19 @@ export interface Class {
     subject_name: string;
     
   }
+
+  export interface SubjectAssignment {
+    assigned_serial: number; // Matches Employee ID
+    created_at: string;
+    subject_id: number;
+    class_id: number;
+  }
+
+  export interface TeacherAssignment {
+    assigned_serial: number; // Matches Employee ID
+    created_at: string;
+    teacher_id: number;
+    class_id: number;
+  }
   
   

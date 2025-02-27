@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { Employee } from "@/types/employee";
 import Heading from "@/components/Heading";
 import {Pagination} from "@/components/paging";
-import { ArrowLeft, Plus, Search, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Search, Loader2,Settings } from "lucide-react";
 import AddEmployeeForm from "@/components/employees/AddEmployeeForm";
 import Modal from "@/components/Modal";
 
@@ -144,9 +144,9 @@ export default function EmployeesPage() {
         <Heading>Employees</Heading>
   
       {/* Search & Add Employee Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-left sm:justify-left gap-3">
         {/* Search Box */}
-        <div className="flex w-full items-center gap-2 bg-white border border-gray-300  sm:w-auto rounded-lg px-3 py-2">
+        <div className="flex w-auto items-center gap-2 bg-white border border-gray-300  sm:w-auto rounded-lg px-3 py-2">
           <Search size={20} className="text-gray-500" />
           <input
             type="text"
@@ -176,7 +176,7 @@ export default function EmployeesPage() {
       )}
   
       {/* Employee List Section */}
-      <div className="bg-white shadow-md rounded-lg p-4 py-6 flex flex-col gap-3 overflow-y-auto max-h-[60vh]">
+      <div className="bg-white shadow-md rounded-lg p-4 py-6 flex flex-col gap-3 overflow-y-auto min-h-[60vh]">
         {loading ? (
           <p className="text-center text-gray-500">Loading...</p>
         ) : currentEmployees.length === 0 ? (
@@ -185,16 +185,17 @@ export default function EmployeesPage() {
           currentEmployees.map((employee) => (
             <div
               key={employee.id}
-              className="border border-gray-300 p-4 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+              className="max-w-[900px] border-b border-b-gray-300 p-4 rounded-lg flex flex-row flex-wrap sm:flex-row sm:items-center justify-between gap-3"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <h2 className="text-base font-medium">
+              <div className="flex flex-row flex-wrap sm:flex-row sm:items-center gap-3">
+              {/* <p className="text-gray-600 min-w-[160px] text-sm sm:text-base">&#40; {employee.position} &#41;</p> */}
+              <h2 className="order-2 text-base font-medium">
                   {employee.name} {employee.last_name}
                 </h2>
-                <p className="text-gray-600 text-sm sm:text-base">&#40; {employee.position} &#41;</p>
               </div>
   
               {/* Manage Button */}
+              <div className="order-1 relative group w-[90px]">
               <button
                 onClick={() => {
                   setLoadingLink(`/employees/edit/${employee.id}`);
@@ -205,8 +206,12 @@ export default function EmployeesPage() {
                   loadingLink === `/employees/edit/${employee.id}` ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {loadingLink === `/employees/edit/${employee.id}` ? <Loader2 className="animate-spin" size={20} /> : "Manage"}
+                {loadingLink === `/employees/edit/${employee.id}` ? <Loader2 className="animate-spin" size={20} /> : <Settings size={20} />}
               </button>
+              <span className="absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 bg-yellow-400 text-orange-900 text-s rounded-lg px-3 p-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+    manage
+  </span>
+                </div>
             </div>
           ))
         )}

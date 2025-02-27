@@ -43,67 +43,91 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <Image
-        src="/logo-min.png"
-        priority
-        alt="Logo"
-        width={110}
-        height={116}
-        style={{ width: "auto", height: "auto" }}
-        className="mb-5"
-      />
-      <h1 className="text-4xl font-bold bg-gradient-to-r from-fuchsia-700 to-yellow-500 bg-clip-text text-transparent mb-6">
-        Login
-      </h1>
-      <form onSubmit={handleLogin} className="w-full max-w-md bg-white border border-gray-300 p-8 rounded-4xl shadow-2xl">
+  <div className="flex flex-col items-center justify-center min-h-screen px-4">
+    
+    {/* Logo */}
+    <Image
+      src="/logo-min.png"
+      priority
+      alt="Logo"
+      width={90}
+      height={100}
+      className="mb-6 w-auto h-auto"
+    />
+
+    {/* Title */}
+    <h1 className="text-3xl font-semibold text-gray-800 mb-6">
+      Welcome Back 👋
+    </h1>
+
+    {/* Login Form */}
+    <form
+      onSubmit={handleLogin}
+      className="w-full max-w-sm bg-white shadow-lg rounded-2xl p-6"
+    >
+      {/* Username Field */}
+      <div className="mb-4">
+        <label className="text-gray-600 text-sm">Username</label>
         <input
           type="text"
-          placeholder="Username"
+          placeholder="Enter your username"
           name="username"
-          className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-300"
+          className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
           autoComplete="username"
           disabled={loading}
         />
-        <div className="relative mt-4">
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            placeholder="Password"
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-400"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-            disabled={loading}
-          />
-          <button
-            type="button"
-            className="absolute inset-y-0 right-3 flex items-center text-gray-500"
-            onClick={() => setShowPassword((prev) => !prev)}
-            disabled={loading}
-          >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-          </button>
-        </div>
+      </div>
+
+      {/* Password Field */}
+      <div className="mb-4 relative">
+        <label className="text-gray-600 text-sm">Password</label>
+        <input
+          type={showPassword ? "text" : "password"}
+          name="password"
+          placeholder="Enter your password"
+          className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none pr-12"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+          disabled={loading}
+        />
         <button
-          type="submit"
-          className={`w-full flex justify-center items-center gap-2 bg-yellow-400 cursor-pointer text-white py-3 mt-6 rounded hover:bg-pink-400 transition duration-300 ease-in-out ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          type="button"
+          className="absolute inset-y-0 right-4 flex items-center text-gray-500"
+          onClick={() => setShowPassword((prev) => !prev)}
           disabled={loading}
         >
-          {loading ? <Loader2 className="animate-spin" size={20} /> : "Login"}
+          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
         </button>
-        {error && <p className="text-red-500 mt-4">{error}</p>}
-      </form>
-      <br />
-      <Link href="/" className="bg-white flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
-        <ArrowLeft size={20} /> &nbsp; back to website
-      </Link>
-    </div>
-  );
+      </div>
+
+      {/* Login Button */}
+      <button
+        type="submit"
+        className={`w-full flex justify-center items-center gap-2 bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out ${
+          loading ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+        disabled={loading}
+      >
+        {loading ? <Loader2 className="animate-spin" size={20} /> : "Login"}
+      </button>
+
+      {/* Error Message */}
+      {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
+    </form>
+
+    {/* Back Button */}
+    <Link
+      href="/"
+      className="mt-4 text-blue-700 hover:text-blue-900 flex items-center gap-2 text-sm"
+    >
+      <ArrowLeft size={18} /> Back to website
+    </Link>
+  </div>
+);
+
 }

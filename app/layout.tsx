@@ -3,6 +3,7 @@
 import NavMenu from "@/components/navMenu"; 
 import { usePathname } from "next/navigation";
 import WebsiteMenu  from "@/components/websiteMenu";
+import {UserProvider} from "@/context/UserContext";
 import "./globals.css";
 
 
@@ -19,10 +20,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en">
-      <body className="bg-gray-100">
+      <body className="bg-gradient-to-b from-gray-100 to-gray-300">
       {showNav && <NavMenu />} {/* ✅ Conditionally render NavMenu */}
       {showWebsiteNav && <WebsiteMenu />} {/* ✅ Conditionally render NavMenu */}
-      <main className="p-6">{children}</main>
+      <UserProvider><main className="py-6 px-2">{children}</main></UserProvider>
       </body>
     </html>
   );

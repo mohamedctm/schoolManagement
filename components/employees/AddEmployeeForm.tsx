@@ -92,10 +92,10 @@ export default function AddEmployeePage() {
   };
 
   // ✅ Handle Navigation with Loading State
-  const handleNavigation = (path: string) => {
-    setLoadingLink(path);
-    router.push(path);
-  };
+  // const handleNavigation = (path: string) => {
+  //   setLoadingLink(path);
+  //   router.push(path);
+  // };
 
   return (
     <div className="p-6 max-w-lg mx-auto h-fit">
@@ -112,8 +112,8 @@ export default function AddEmployeePage() {
         </button>
       </div> */}
 
-      <div className="flex justify-between items-center mb-4">
-        <Heading>Add Employee</Heading>
+<div className="text-center w-full mb-4">
+<Heading>Add Employee</Heading>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6">
@@ -164,7 +164,7 @@ export default function AddEmployeePage() {
         
         <button 
           type="submit" 
-          className={`w-full flex justify-center items-center gap-2 bg-green-200 text-lg text-green-900 px-4 py-2 rounded hover:bg-green-600 hover:text-white transition ${
+          className={`w-full flex justify-center items-center gap-2 bg-green-700 text-lg text-green-100 px-4 py-2 rounded hover:bg-green-600 transition ${
             loading ? "opacity-50 cursor-not-allowed" : ""
           }`}
           disabled={loading}

@@ -8,6 +8,14 @@ export interface Employee {
     username: string;
     password: string;
     last_name: string;
+    level: string;
+  }
+  export interface User {
+    id: number;
+    name: string;
+    username: string;
+    last_name: string;
+    level: string;
   }
   
   export interface Salary {

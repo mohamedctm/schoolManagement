@@ -3,12 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, LogOut, Loader2 } from "lucide-react";
+import { LayoutDashboard, LogOut, Loader2, Settings } from "lucide-react";
 
 export default function NavMenu() {
   const pathname = usePathname() || ""; // Ensure it's always a string
   const router = useRouter();
-  const [loadingLink, setLoadingLink] = useState<string | null>(null); // ✅ Track link clicks
   const [loadingLogout, setLoadingLogout] = useState(false); // ✅ Track logout clicks
 
   const isPageWithNav = (path: string) => {
@@ -17,6 +16,8 @@ export default function NavMenu() {
       path.startsWith("/students") ||
       path.startsWith("/class") ||
       path.startsWith("/orders") ||
+      path.startsWith("/profile") ||
+      path.startsWith("/exam") ||
       path === "/dashboard"
     );
   };
@@ -46,28 +47,39 @@ export default function NavMenu() {
   };
 
   return (
-    <nav className="bg-white text-gray-700 gap-2 p-5 flex justify-between border-b border-gray-300">
+    <nav className="bg-white gap-4 p-5 flex justify-end border-b border-gray-300">
       {/* Dashboard Link */}
       <button
         onClick={() => handleNavigation("/dashboard")}
-        className={`mr-4 flex items-center text-lg gap-2 ${
-          pathname === "/dashboard" ? "text-purple-800" : "text-gray-600"
+        className={`mr-4 flex items-center text-m gap-2 hover:text-blue-900 ${
+          pathname === "/dashboard" ? "text-blue-700 font-normal" : "text-gray-600"
         }`}
       >
          <LayoutDashboard size={20} />
         Dashboard
+      </button>
+      
+        {/* profile Link */}
+        <button
+        onClick={() => handleNavigation("/profile")}
+        className={`mr-4 flex items-center text-m gap-2 hover:text-blue-700 ${
+          pathname === "/profile" ? "text-blue-600 font-nomal" : "text-gray-600"
+        }`}
+      >
+         <Settings size={20} />
+        
       </button>
 
       {/* Logout Button */}
       <button
         onClick={handleLogout}
         disabled={loadingLogout}
-        className={`flex items-center gap-2 bg-gray-100 text-gray-400 px-4 py-2 rounded hover:bg-red-500 hover:text-white ${
+        className={`flex items-center text-m gap-2 bg-white text-gray-600 px-4 py-2 rounded hover:bg-red-500 hover:text-white ${
           loadingLogout ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
         {loadingLogout ? <Loader2 className="animate-spin" size={20} /> : <LogOut size={20} />}
-        Logout
+        
       </button>
     </nav>
   );

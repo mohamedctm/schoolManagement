@@ -6,7 +6,9 @@ import Link from "next/link";
 import { Student } from "@/types/student";
 import { Class } from "@/types/class";
 import Heading from "@/components/Heading";
-import { ArrowLeft,GraduationCap } from "lucide-react";
+import { ArrowLeft,GraduationCap,Loader2 ,Book,Users} from "lucide-react";
+import { useRouter } from "next/navigation";
+
 
 interface EditStudentFormProps {
   id: string;
@@ -32,6 +34,10 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
   const [unassignedStudents, setUnassignedStudents] = useState<Student[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
   const [showNeverAssigned, setShowNeverAssigned] = useState(true); // Toggle for never-assigned students
+  const [loadingLink, setLoadingLink] = useState<string | null>(null);
+  const router = useRouter();
+  
+
 
 
 
@@ -286,10 +292,74 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
   ) : (
     <div className="w-full max-w-full mx-auto h-auto overflow-x-hidden">
       {/* Back Button */}
-      <div className="flex justify-between items-center mb-4">
-        <Link href="/class" className="flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900">
-          <ArrowLeft size={20} /> &nbsp; Back to Class
-        </Link>
+      <div className="flex justify-start gap-4 flex-row flex-wrap items-center mb-4">
+      <button
+          onClick={() => {
+            setLoadingLink("/class");
+            router.push("/class");
+          }}
+          disabled={loadingLink !== null}
+          className={`flex items-center text-gray-500 px-4 py-2 rounded hover:bg-red-300 hover:text-red-900 ${
+            loadingLink === "/class" ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {loadingLink === "/class" ? <Loader2 className="animate-spin" size={20} /> : <ArrowLeft size={20} />}
+          &nbsp;back to classes
+        </button>
+        <div className="relative group">
+                        <button
+                          onClick={() => {
+                            setLoadingLink(`/class/edit/${id}`);
+                            router.push(`/class/edit/${id}`);
+                          }}
+                          disabled={loadingLink !== null}
+                          className={`flex items-center font-light gap-2 px-3 py-2 rounded border border-gray-300
+                             bg-blue-200 text-blue-600 hover:bg-blue-500 hover:text-white ${
+                            loadingLink === `/class/edit/${id}` ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
+                        >
+                          {loadingLink === `/class/edit/${id}` ? <Loader2 className="animate-spin" size={20} /> : <GraduationCap size={20} />}
+                        </button>
+                        <span className="absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 bg-yellow-400 text-orange-900 text-s rounded-lg px-3 p-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                manage students 
+            </span>
+                </div>
+                        <div className="relative group">
+                        <button
+                          onClick={() => {
+                            setLoadingLink(`/class/subjects/${id}`);
+                            router.push(`/class/subjects/${id}`);
+                          }}
+                          disabled={loadingLink !== null}
+                          className={`flex items-center font-light gap-2 px-3 py-2 rounded border border-gray-300 bg-white text-gray-600 hover:bg-blue-500 hover:text-white ${
+                            loadingLink === `/class/edit/${id}` ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
+                         
+                        >
+                          {loadingLink === `/class/subjects/${id}` ? <Loader2 className="animate-spin" size={20} /> :<Book size={20} />}
+                          </button>
+                        <span className="absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 bg-yellow-400 text-orange-900 text-s rounded-lg px-3 p-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    manage subjects
+                </span>
+                </div>
+                <div className="relative group">
+                        <button
+                          onClick={() => {
+                            setLoadingLink(`/class/teachers/${id}`);
+                            router.push(`/class/teachers/${id}`);
+                          }}
+                          disabled={loadingLink !== null}
+                          className={`flex items-center font-light gap-2 px-3 py-2 rounded border border-gray-300 bg-white text-gray-600 hover:bg-blue-500 hover:text-white ${
+                            loadingLink === `/class/teachers/${id}` ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
+                         
+                        >
+                          {loadingLink === `/class/teachers/${id}` ? <Loader2 className="animate-spin" size={20} /> : <Users size={20} />}
+                          </button>
+                        <span className="absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 bg-yellow-400 text-orange-900 text-s rounded-lg px-3 p-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    manage Teachers
+                </span>
+                </div>
       </div>
   
       {/* Page Heading */}
@@ -363,7 +433,7 @@ export default function EditStudentForm({ id }: EditStudentFormProps) {
                 <div key={student.id} className="flex items-center gap-2 mb-3">
                   <button
                     onClick={() => HandleDeleteStudent(student.id)}
-                    className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-red-500"
+                    className=" text-2xl text-gray-500 px-6 py-1 rounded hover:text-red-500"
                   >
                     &times;
                   </button>

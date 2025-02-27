@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Heading from "@/components/Heading";
 import { Class } from "@/types/class";
-import { ArrowLeft, Plus,Settings, Loader2, GraduationCap,  } from "lucide-react";
+import { ArrowLeft, MoveHorizontal,Settings, Loader2, GraduationCap,  } from "lucide-react";
 import ProgressBar from "@/components/progress"
 import Modal from "@/components/Modal";
 import AddClassPage from "@/components/class/AddClass";
@@ -131,7 +131,7 @@ export default function ClassRoom() {
       {/* Modals */}
       {modal === "addclass" && (
         <Modal isOpen onClose={() => setModal(null)}>
-          <AddClassPage onClassAdded={() => {}} />
+          <AddClassPage onClassAdded={handleClassAdded} />
         </Modal>
       )}
       {modal === "addsubject" && (
@@ -143,14 +143,14 @@ export default function ClassRoom() {
         <Modal isOpen onClose={() => setModal(null)}>
           <AlterClassPage 
             classid={selectedClassId} 
-            onClassAdded={() => {}} 
+            onClassAdded={handleClassAdded} 
             onClose={() => setModal(null)} 
           />
         </Modal>
       )}
 
       {/* Top Navigation */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-start gap-4 items-center mb-4">
         <button
           onClick={() => {
             setLoadingLink("/dashboard");
@@ -164,15 +164,6 @@ export default function ClassRoom() {
           {loadingLink === "/dashboard" ? <Loader2 className="animate-spin" size={20} /> : <ArrowLeft size={20} />}
           &nbsp;Dashboard
         </button>
-      </div>
-
-      {/* Heading */}
-      <div className="text-left mb-4">
-        <Heading>Class Rooms</Heading>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-1 justify-start">
         <button 
           onClick={() => setModal("addclass")} 
           disabled={loadingLink !== null}
@@ -180,6 +171,7 @@ export default function ClassRoom() {
         >
           Add Class
         </button>
+        
         <button 
           onClick={() => setModal("addsubject")} 
           disabled={loadingLink !== null}
@@ -187,6 +179,14 @@ export default function ClassRoom() {
         >
           Add Subject
         </button>
+      </div>
+
+      {/* Heading */}
+        <Heading>Class Rooms</Heading>
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-1 justify-start">
+        
       </div>
 
       {/* Class Cards */}
@@ -205,52 +205,50 @@ export default function ClassRoom() {
                   .map((classItem) => (
                     <div 
                       key={classItem.serial} 
-                      className="border border-gray-300 p-4 rounded-lg flex flex-col gap-2"
-                    >
-                      <div className="flex justify-between items-center">
+                      className="border border-gray-300 p-4 rounded-lg flex flex-col gap-2">
+                      <div className="flex gap-4 justify-between items-center">
                         <p className="text-lg font-bold mx-2">{classItem.class_name}</p>
-                        <ProgressBar 
+                        <p className="flex flex-row gap-3"><GraduationCap size={20} /> {classStudentCount[classItem.serial]}</p>
+                        <ProgressBar
                           current={classStudentCount[classItem.serial] ?? 0} 
-                          total={classItem.class_size} 
+                          total={classItem.class_size}
                         />
                       </div>
                       
                       <div className="flex flex-wrap gap-2">
+                      <div className="relative group">
                         <button
                           onClick={() => {
                             setLoadingLink(`/class/edit/${classItem.serial}`);
                             router.push(`/class/edit/${classItem.serial}`);
                           }}
                           disabled={loadingLink !== null}
-                          className={`flex items-center font-light gap-2 px-3 py-1 rounded border border-gray-300 bg-white text-gray-600 hover:bg-blue-500 hover:text-white ${
+                          className={`flex items-center font-light gap-2 px-3 py-2 rounded border border-gray-300
+                             bg-white text-gray-500 hover:bg-blue-500 hover:text-white ${
                             loadingLink === `/class/edit/${classItem.serial}` ? "opacity-50 cursor-not-allowed" : ""
                           }`}
                         >
-                          {loadingLink === `/class/edit/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : <><GraduationCap size={20} /> {classStudentCount[classItem.serial] ?? 0}</>}
+                          {loadingLink === `/class/edit/${classItem.serial}` ? <Loader2 className="animate-spin" size={20} /> : <MoveHorizontal size={20} />}
                         </button>
-                        
-                        <button
-                          onClick={() => {
-                            setLoadingLink(`/class/subject/${classItem.serial}`);
-                            router.push(`/class/subject/${classItem.serial}`);
-                          }}
-                          disabled={loadingLink !== null}
-                          className={`flex items-center font-light gap-2 px-3 py-1 rounded border border-gray-300 bg-white
-                             text-gray-600 hover:bg-blue-500 hover:text-white`}
-                        >
-                          Subjects
-                        </button>
-
+                        <span className="absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 bg-yellow-400 text-orange-900 text-s rounded-lg px-3 p-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                manage class 
+            </span>
+                </div>
+<div className="relative group">
                         <button
                           onClick={() => {
                             setModal("alterclass");
                             setSelectedClassId(classItem.serial);
                           }}
                           disabled={loadingLink !== null}
-                          className="bg-white text-gray-600 px-4 py-2 rounded border border-gray-300 hover:bg-blue-500 hover:text-white"
-                        >
+                          className={`flex items-center font-light gap-2 px-3 py-2 rounded border border-gray-300 bg-white
+                            text-gray-600 hover:bg-blue-500 hover:text-white`}>
                           <Settings size={20} />
                         </button>
+                        <span className="absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 bg-yellow-400 text-orange-900 text-s rounded-lg px-3 p-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+    class settings
+  </span>
+                </div>
                       </div>
                     </div>
                   ))}
