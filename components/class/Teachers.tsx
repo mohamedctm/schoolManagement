@@ -312,19 +312,14 @@ export default function Teachers({ id }: EditStudentFormProps) {
                 </span>
                 </div>
                 <div className="relative group">
-                        <button
-                          onClick={() => {
-                            setLoadingLink(`/class/teachers/${id}`);
-                            router.push(`/class/teachers/${id}`);
-                          }}
-                          disabled={loadingLink !== null}
-                          className={`flex items-center font-light gap-2 px-3 py-2 rounded border border-gray-300 bg-blue-200 text-blue-600
-                             hover:bg-blue-500 hover:text-white ${
-                            loadingLink === `/class/teachers/${id}` ? "opacity-50 cursor-not-allowed" : ""
-                          }`}
+                <button
+                          
+                          disabled={true}
+                          className="flex items-center font-light gap-2 px-3 py-2 rounded border border-gray-300  bg-blue-200 text-blue-600
+                             hover:bg-blue-500 hover:text-white"
                          
                         >
-                          {loadingLink === `/class/teachers/${id}` ? <Loader2 className="animate-spin" size={20} /> : <Users size={20} />}
+                           <Users size={20} />
                           </button>
                         <span className="absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 bg-yellow-400 text-orange-900 text-s rounded-lg px-3 p-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
                     manage Teachers

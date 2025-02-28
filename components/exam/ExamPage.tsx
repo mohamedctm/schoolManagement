@@ -230,7 +230,7 @@ export default function ExamPagee() {
                 </span>
               </div>
                 {/* <FileText size={24} className="text-orange-500" /> */}
-                <h3 className="text-lg font-normal">{exam.examDetails?.exam_name}</h3>
+                <h3 className="text-lg font">{exam.examDetails?.exam_name}</h3>
               </div>
               <p className="text-l p-2"> {exam.examDetails?.exam_type}</p>
               <p className="text-l p-2"> {exam.examDetails?.exam_year}</p>

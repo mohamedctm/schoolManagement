@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, LogOut, Loader2, Settings } from "lucide-react";
+import { LayoutDashboard, LogOut, Loader2, User } from "lucide-react";
+import { useUser } from "@/context/UserContext";
 
 export default function NavMenu() {
   const pathname = usePathname() || ""; // Ensure it's always a string
   const router = useRouter();
   const [loadingLogout, setLoadingLogout] = useState(false); // ✅ Track logout clicks
-
+  const { user } = useUser();
   const isPageWithNav = (path: string) => {
     return (
       path.startsWith("/employees") ||
@@ -66,7 +67,7 @@ export default function NavMenu() {
           pathname === "/profile" ? "text-blue-600 font-nomal" : "text-gray-600"
         }`}
       >
-         <Settings size={20} />
+        <User size={20} />{user.username}
         
       </button>
 

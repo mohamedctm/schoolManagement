@@ -8,6 +8,9 @@ import Heading from "@/components/Heading";
 import { ArrowLeft, Plus, Upload, ChevronDown, ChevronUp,Loader2 } from "lucide-react";
 import countries from "world-countries";
 import { useRouter } from "next/navigation";
+import Modal from "@/components/Modal";
+import Username from "@/components/employees/Username";
+
 
 interface EditEmployeeFormProps {
   id: string;
@@ -47,6 +50,7 @@ const initialEmployeeInfoState: EmployeeInfo = {
 
 export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
   const router = useRouter();
+  const [modal, setModal] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -79,7 +83,32 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
   function countNullValues(record: Record<string, any>) {
     return Object.values(record).filter((value) => value === null || value === "").length;
   }
-
+  const fetchEmployeeData = async () => {
+    try {
+      const employeeId = Number(id);
+      const fetchTableData = async (table: string) => {
+        const { data, error } = await supabase.from(table).select("*").eq("id", employeeId).single();
+        if (error) throw error;
+        return data;
+      };
+  
+      const [empData, salData, empInfoData] = await Promise.all([
+        fetchTableData("employees"),
+        fetchTableData("salary"),
+        fetchTableData("employee_info"),
+      ]);
+  
+      setEmployee(empData);
+      setSalary(salData);
+      setEmployeeInfo(empInfoData);
+    } catch (error) {
+      console.log("Error fetching employee data:", error);
+      setMessage("Failed to fetch employee info data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   useEffect(() => {
    
     const fetchEmployeeData = async () => {
@@ -203,6 +232,11 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
   if (loading) return <p>Loading...</p>;
   return (
     <div className="p-4 max-w-[90%] mx-auto min-h-screen overflow-y-auto">
+       {modal === "createusername" && (
+              <Modal isOpen onClose={() => {setModal(null)}}>
+                <Username onAccountCreated={fetchEmployeeData} id={employee?.id}/>
+              </Modal>
+            )}
       {/* Back Button */}
       <div className="flex justify-start gap-4 items-center mb-6">
       <button
@@ -216,24 +250,14 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
           }`}
         >
           {loadingLink === "/employees" ? <Loader2 className="animate-spin" size={20} /> : <ArrowLeft size={20} />}
-          &nbsp;back to students
+          &nbsp;back to employees
         </button>
-         {/* Create Username Button */}
-      {!employee?.username && (
-          <Link href={`/employees/username/${id}`} className="flex items-center gap-2 text-gra-500 px-4 py-2 rounded-lg hover:text-green-700 transition duration-300">
-            <Plus size={20} />
-            <span>Create Username</span>
-          </Link>
-      )}
       </div>
-  
+      
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Edit Employee</h1>
       </div>
-  
-     
-  
       {/* Message Display */}
       {message && (
         <p className="text-green-600 text-lg font-medium mb-6">{message}</p>
@@ -371,7 +395,22 @@ export default function EditEmployeeForm({ id }: EditEmployeeFormProps) {
       <button onClick={handleUpdate} className="w-full sm:w-fit bg-blue-700 text-blue-100 px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-300 mb-6">
         {!updateLoading ? 'Update Employee' : 'Updating...'}
       </button>
-  
+      
+      {!employee?.username && (
+        <><p className="py-6 text-gray-500  text-sm"> User account allows this employee to use the system.<br/>
+         Later adminstrator can grand/revoke privileges to the account  </p>
+      <div className="flex justify-start gap-4 items-center mb-6">
+         {/* Create Username Button */}
+         <button
+          onClick={() => setModal("createusername")}
+          disabled={loadingLink !== null}
+          className="flex items-center max-w-[200px] gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          <Plus size={20} />
+          create account
+        </button>
+      </div>
+            </>)}
       {/* Warning and Delete Button */}
       <p className="py-6 text-gray-500 text-sm">Warning: Deleting an employee is permanent and cannot be undone.</p>
       <div className="flex justify-end">

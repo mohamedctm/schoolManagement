@@ -47,7 +47,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
 
         setUser({
-          id: data.id || 0,
+          id: data.id || null,
           username: data.username || "",
           name: data.name || "",
           last_name: data.last_name || "",

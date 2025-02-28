@@ -23,7 +23,16 @@ export default function AssignExam() {
   const [passPercentage, setPassPercentage] = useState<number | null>(null);
 
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState({ text: "", isError: false });
+
+  // ✅ Reset Form Function
+  const resetForm = () => {
+    setSelectedExam(null);
+    setSelectedClass(null);
+    setSelectedSubject(null);
+    setExamMark(null);
+    setPassPercentage(null);
+  };
 
   // ✅ Fetch Exams
   useEffect(() => {
@@ -34,7 +43,7 @@ export default function AssignExam() {
         setExams(data || []);
       } catch (error) {
         console.error("Error fetching exams:", error);
-        setMessage("Failed to fetch exams.");
+        setMessage({ text: "Failed to fetch exams.", isError: true });
       }
     };
     fetchExams();
@@ -69,7 +78,7 @@ export default function AssignExam() {
         setClasses(classData || []);
       } catch (error) {
         console.error("Error fetching classes:", error);
-        setMessage("Failed to fetch classes.");
+        setMessage({ text: "Failed to fetch classes.", isError: true });
       }
     };
 
@@ -105,7 +114,7 @@ export default function AssignExam() {
         setSubjects(subjectData || []);
       } catch (error) {
         console.error("Error fetching subjects:", error);
-        setMessage("Failed to fetch subjects.");
+        setMessage({ text: "Failed to fetch subjects.", isError: true });
       }
     };
 
@@ -138,16 +147,19 @@ export default function AssignExam() {
   // ✅ Assign Exam to Class
   const handleAssignExam = async () => {
     if (!selectedExam || !selectedClass || !selectedSubject || !examMark || !passPercentage) {
-      setMessage("Please select an exam, class, subject, and provide exam mark and pass percentage.");
+      setMessage({
+        text: "Please select an exam, class, subject, and provide exam mark and pass percentage.",
+        isError: true,
+      });
       return;
     }
 
     setLoading(true);
-    setMessage("");
+    setMessage({ text: "", isError: false });
 
     try {
       if (!user?.id) {
-        setMessage("Error: User not found. Please log in.");
+        setMessage({ text: "Error: User not found. Please log in.", isError: true });
         setLoading(false);
         return;
       }
@@ -168,7 +180,10 @@ export default function AssignExam() {
       }
 
       if (existingExam) {
-        setMessage("This subject is already assigned to the selected exam and class.");
+        setMessage({
+          text: "This subject is already assigned to the selected exam and class.",
+          isError: true,
+        });
         setLoading(false);
         return;
       }
@@ -201,7 +216,7 @@ export default function AssignExam() {
 
       if (studentError) throw studentError;
       if (!students || students.length === 0) {
-        setMessage("No students found in this class.");
+        setMessage({ text: "No students found in this class.", isError: true });
 
         // ✅ Rollback: Remove `myexam` entry if no students
         await supabase.from("myexam").delete().eq("id", insertedExam.id);
@@ -233,13 +248,14 @@ export default function AssignExam() {
         throw insertError;
       }
 
-      setMessage("Students assigned to exam successfully!");
+      setMessage({ text: "Students assigned to exam successfully!", isError: false });
+      resetForm(); // ✅ Reset the form after successful submission
     } catch (error) {
       console.error("❌ Error assigning exam:", error);
-      setMessage("Error assigning students. Please try again.");
+      setMessage({ text: "Error assigning students. Please try again.", isError: true });
     } finally {
       setLoading(false);
-      setTimeout(() => setMessage(""), 3000);
+      setTimeout(() => setMessage({ text: "", isError: false }), 5000);
     }
   };
 
@@ -250,9 +266,13 @@ export default function AssignExam() {
       </div>
 
       {/* Message Popup */}
-      {message && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-3 rounded-lg shadow-md transition-opacity duration-300">
-          {message}
+      {message.text && (
+        <div
+          className={`fixed top-20 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg shadow-md transition-opacity duration-300 ${
+            message.isError ? "bg-red-500" : "bg-green-500"
+          } text-white`}
+        >
+          {message.text}
         </div>
       )}
 

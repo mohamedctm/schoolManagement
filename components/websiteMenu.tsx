@@ -110,7 +110,7 @@ export default function WebsiteMenu() {
       {/* Overlay for Closing Menu */}
       {menuOpen && (
         <div
-          className="fixed top-0 left-0 w-full h-full bg-gray-700 opacity-70"
+          className="fixed top-0 left-0 w-full h-full bg-gray-700"
           onClick={() => setMenuOpen(false)}
         ></div>
       )}

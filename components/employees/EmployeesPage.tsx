@@ -163,7 +163,7 @@ export default function EmployeesPage() {
           disabled={loadingLink !== null}
           className="flex items-center max-w-[200px] gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
         >
-          {loadingLink === "/employees/add" ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
+          <Plus size={20} />
           Add Employee
         </button>
       </div>
